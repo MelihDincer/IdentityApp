@@ -1,0 +1,384 @@
+@model IEnumerable<IdentityUser>
+
+<div class="container-fluid py-4"> <div class="users-page">
+
+    <!-- Header -->
+
+<div class="page-header">
+<div>
+    <h1 class="page-title">
+        Kullanıcılar
+    </h1>
+
+    <p class="page-description">
+        Sistemde kayıtlı kullanıcıları görüntüleyin ve yönetin.
+    </p>
+</div>
+
+<!-- Yeni Kullanıcı -->
+<a href="@Url.Action("Create", "Users")"
+   class="add-user-btn">
+    <i class="bi bi-plus-lg"></i>
+    <span>Yeni Kullanıcı</span>
+</a>
+
+</div>
+
+
+    <!-- User Table -->
+    <div class="users-card">
+
+        <div class="users-toolbar">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+       id="userSearch"
+       class="form-control"
+       placeholder="Kullanıcı, e-posta, telefon veya ID ara..."
+       autocomplete="off">
+            </div>
+
+            <div class="user-count">
+                Toplam <strong id="userCount">@Model.Count()</strong> kullanıcı
+            </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="users-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı</th>
+                        <th>E-posta</th>
+                        <th>Telefon</th>
+                        <th>E-posta Durumu</th>
+                        <th>Güvenlik</th>
+                        <th>Hesap</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                @if (Model.Any())
+                {
+                    foreach (var user in Model)
+                    {
+                        var displayName = string.IsNullOrWhiteSpace(user.UserName)
+                            ? "Bilinmeyen Kullanıcı"
+                            : user.UserName;
+
+                        var initial = displayName.Substring(0, 1).ToUpper();
+
+                        var isLocked = user.LockoutEnd.HasValue &&
+                                       user.LockoutEnd.Value > DateTimeOffset.UtcNow;
+                        var searchText = string.Join(" ", new[] { user.UserName, user.Email, user.PhoneNumber, user.Id, user.EmailConfirmed ? "doğrulandı aktif" : "doğrulanmadı", user.TwoFactorEnabled ? "2fa aktif güvenli" : "2fa kapalı", isLocked ? "kilitli" : "aktif" }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+                        <tr class="user-row" data-search="@searchText">
+
+                            <!-- User -->
+                            <td>
+                                <div class="user-info">
+
+                                    <div class="avatar">
+                                        @initial
+                                    </div>
+
+                                    <div>
+                                        <div class="username">
+                                            @displayName
+                                        </div>
+
+                                        <div class="user-id"
+                                             title="@user.Id">
+                                            @user.Id
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            <!-- Email -->
+                            <td>
+                                <div class="email">
+                                    @(string.IsNullOrWhiteSpace(user.Email)
+                                        ? "-"
+                                        : user.Email)
+                                </div>
+                            </td>
+
+                            <!-- Phone -->
+                            <td>
+                                <div class="phone">
+                                    @(string.IsNullOrWhiteSpace(user.PhoneNumber)
+                                        ? "-"
+                                        : user.PhoneNumber)
+                                </div>
+                            </td>
+
+                            <!-- Email Confirmed -->
+                            <td>
+                                @if (user.EmailConfirmed)
+                                {
+                                    <span class="status-badge status-success">
+                                        Doğrulandı
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-warning">
+                                        Doğrulanmadı
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Security -->
+                            <td>
+                                @if (user.TwoFactorEnabled)
+                                {
+                                    <span class="status-badge status-success">
+                                        2FA Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-neutral">
+                                        2FA Kapalı
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Account -->
+                            <td>
+                                @if (isLocked)
+                                {
+                                    <span class="status-badge status-danger">
+                                        Kilitli
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-success">
+                                        Aktif
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="actions">
+<!-- Detay -->
+<a href="@Url.Action("Details", "Users", new { id = user.Id })"
+   class="action-btn"
+   title="Kullanıcı Detayları">
+    <i class="bi bi-pencil"></i>
+</a>
+
+<!-- Sil -->
+<button type="button"
+        class="action-btn delete-btn"
+        title="Kullanıcıyı Sil"
+        data-user-id="@user.Id"
+        data-user-name="@displayName">
+    <i class="bi bi-trash3"></i>
+</button>
+
+</td>
+
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
+
+                                <strong>Henüz kullanıcı bulunmuyor.</strong>
+
+                                <div class="mt-1">
+                                    Sistemde kayıtlı kullanıcı bulunamadı.
+                                </div>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+<!-- Delete Modal -->
+
+<div class="modal fade"
+     id="deleteUserModal"
+     tabindex="-1"
+     aria-labelledby="deleteUserModalLabel"
+     aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+         style="border-radius: 16px;">
+
+        <div class="modal-body p-4">
+
+            <div class="text-center">
+
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+                     style="
+                        width:56px;
+                        height:56px;
+                        border-radius:14px;
+                        background:#fef2f2;
+                        color:#dc2626;
+                        font-size:22px;
+                     ">
+                    <i class="bi bi-trash3"></i>
+                </div>
+
+                <h5 class="fw-bold mb-2">
+                    Kullanıcı silinsin mi?
+                </h5>
+
+                <p class="text-muted mb-1">
+                    Bu işlem geri alınamaz.
+                </p>
+
+                <div class="fw-semibold text-dark"
+                     id="deleteUserName">
+                </div>
+
+            </div>
+
+            <form asp-action="Delete"
+                  asp-controller="Users"
+                  method="post"
+                  id="deleteUserForm">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       id="deleteUserId" />
+
+                <div class="d-flex gap-2 mt-4">
+
+                    <button type="button"
+                            class="btn btn-light w-50"
+                            data-bs-dismiss="modal">
+                        Vazgeç
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-danger w-50">
+                        <i class="bi bi-trash3 me-1"></i>
+                        Sil
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const deleteModalElement =
+            document.getElementById("deleteUserModal");
+
+        const deleteModal =
+            new bootstrap.Modal(deleteModalElement);
+
+        const deleteUserId =
+            document.getElementById("deleteUserId");
+
+        const deleteUserName =
+            document.getElementById("deleteUserName");
+
+        document.querySelectorAll(".delete-btn")
+            .forEach(button => {
+
+                button.addEventListener("click", function () {
+
+                    const userId =
+                        this.dataset.userId;
+
+                    const userName =
+                        this.dataset.userName;
+
+                    deleteUserId.value = userId;
+                    deleteUserName.textContent = userName;
+
+                    deleteModal.show();
+                });
+
+            });
+
+    });
+</script>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () { const searchInput = document.getElementById("userSearch"); const rows = document.querySelectorAll(".user-row"); const countElement = document.getElementById("userCount"); searchInput.addEventListener("input", function () { const searchText = this.value .toLowerCase() .trim(); let visibleCount = 0; rows.forEach(row => { const searchData = ( row.dataset.search || "" ).toLowerCase(); const visible = searchData.includes(searchText); row.style.display = visible ? "" : "none"; if (visible) { visibleCount++; } }); countElement.textContent = visibleCount; }); 
+    
+    
+    }); </script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const searchInput = document.getElementById("userSearch");
+            const rows = document.querySelectorAll(".user-row");
+            const countElement = document.getElementById("userCount");
+
+            function filterUsers() {
+
+                const searchText = searchInput.value
+                    .toLocaleLowerCase("tr-TR")
+                    .trim();
+
+                let visibleCount = 0;
+
+                rows.forEach(function (row) {
+
+                    const searchData = (row.dataset.search || "")
+                        .toLocaleLowerCase("tr-TR");
+
+                    const isMatch =
+                        searchText === "" ||
+                        searchData.includes(searchText);
+
+                    row.style.display = isMatch ? "" : "none";
+
+                    if (isMatch) {
+                        visibleCount++;
+                    }
+                });
+
+                if (countElement) {
+                    countElement.textContent = visibleCount;
+                }
+            }
+
+            // Her tuş vuruşunda anında filtrele
+            searchInput.addEventListener("input", filterUsers);
+
+            // Sayfa ilk açıldığında da çalıştır
+            filterUsers();
+        });
+    </script>
+}

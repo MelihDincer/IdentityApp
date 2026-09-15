@@ -1,0 +1,776 @@
+@model CreateViewModel
+@{
+ViewData["Title"] = "Yeni Kullanıcı";
+}
+
+<style>
+
+    .user-create-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    /* =========================
+       PAGE HEADER
+    ========================== */
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #6b7280;
+        font-size: .9rem;
+        margin-bottom: 20px;
+        transition: .2s ease;
+    }
+
+    .back-link:hover {
+        color: #111827;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .page-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 6px;
+        letter-spacing: -0.03em;
+    }
+
+    .page-description {
+        color: #6b7280;
+        margin: 0;
+        font-size: .92rem;
+    }
+
+    /* =========================
+       LAYOUT
+    ========================== */
+
+    .create-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* =========================
+       CARD
+    ========================== */
+
+    .form-card,
+    .info-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, .04);
+    }
+
+    .form-card {
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .card-header-custom {
+        padding: 20px 24px;
+        border-bottom: 1px solid #eef0f3;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 650;
+        color: #111827;
+        margin: 0;
+    }
+
+    .card-description {
+        color: #9ca3af;
+        font-size: .82rem;
+        margin-top: 4px;
+    }
+
+    .card-body-custom {
+        padding: 24px;
+    }
+
+    /* =========================
+       FORM
+    ========================== */
+
+    .form-label-custom {
+        display: block;
+        color: #374151;
+        font-size: .86rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .required {
+        color: #ef4444;
+        margin-left: 2px;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        height: 46px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0 14px;
+        outline: none;
+        font-size: .9rem;
+        color: #111827;
+        background: #ffffff;
+        transition: .2s ease;
+    }
+
+    .form-control-custom::placeholder {
+        color: #b0b6c0;
+    }
+
+    .form-control-custom:focus {
+        border-color: #94a3b8;
+        box-shadow: 0 0 0 4px rgba(148, 163, 184, .12);
+    }
+
+    .input-group-custom {
+        position: relative;
+    }
+
+    .input-group-custom .form-control-custom {
+        padding-right: 45px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 13px;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .password-toggle:hover {
+        color: #374151;
+    }
+
+    .form-help {
+        color: #9ca3af;
+        font-size: .75rem;
+        margin-top: 7px;
+    }
+
+    /* =========================
+       DIVIDER
+    ========================== */
+
+    .section-divider {
+        height: 1px;
+        background: #eef0f3;
+        margin: 4px 0 24px;
+    }
+
+    /* =========================
+       CHECKBOX
+    ========================== */
+
+    .custom-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .custom-check:hover {
+        background: #fafafa;
+        border-color: #d1d5db;
+    }
+
+    .custom-check input {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+    }
+
+    .custom-check-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .custom-check-title {
+        font-size: .86rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .custom-check-description {
+        font-size: .75rem;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    /* =========================
+       ROLE SELECT
+    ========================== */
+
+    .role-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .role-option {
+        position: relative;
+    }
+
+    .role-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .role-option label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 13px;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        color: #6b7280;
+        font-size: .82rem;
+        cursor: pointer;
+        transition: .2s ease;
+        user-select: none;
+    }
+
+    .role-option label:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .role-option input:checked + label {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #111827;
+        font-weight: 600;
+    }
+
+    /* =========================
+       ACTIONS
+    ========================== */
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 18px 24px;
+        border-top: 1px solid #eef0f3;
+        background: #fafafa;
+    }
+
+    .btn-custom {
+        height: 42px;
+        padding: 0 18px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        font-size: .86rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+    .btn-cancel {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+    }
+
+    .btn-cancel:hover {
+        background: #f9fafb;
+        color: #111827;
+    }
+
+    .btn-primary-custom {
+        border: 1px solid #111827;
+        background: #111827;
+        color: #ffffff;
+    }
+
+    .btn-primary-custom:hover {
+        background: #374151;
+        border-color: #374151;
+        color: #ffffff;
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================== */
+
+    .info-card {
+        padding: 22px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .info-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        color: #475569;
+        margin-bottom: 16px;
+        font-size: 1.05rem;
+    }
+
+    .info-title {
+        color: #111827;
+        font-weight: 650;
+        font-size: .95rem;
+        margin-bottom: 7px;
+    }
+
+    .info-text {
+        color: #6b7280;
+        font-size: .82rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-list-item {
+        display: flex;
+        gap: 10px;
+        font-size: .78rem;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    .info-list-item i {
+        color: #22c55e;
+        font-size: .95rem;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @@media (max-width: 992px) {
+
+        .create-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .info-card {
+            position: static;
+        }
+
+    }
+
+    @@media (max-width: 576px) {
+
+        .card-body-custom {
+            padding: 18px;
+        }
+
+        .card-header-custom {
+            padding: 18px;
+        }
+
+        .form-actions {
+            padding: 15px 18px;
+            flex-direction: column-reverse;
+        }
+
+        .btn-custom {
+            width: 100%;
+        }
+
+    }
+
+/* =========================
+   VALIDATION
+========================== */
+
+.validation-summary-custom {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: .84rem;
+}
+
+.validation-summary-custom ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.validation-summary-custom li {
+    margin-bottom: 4px;
+}
+
+.validation-summary-custom li:last-child {
+    margin-bottom: 0;
+}
+
+.field-validation-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 7px;
+    color: #dc2626;
+    font-size: .76rem;
+    font-weight: 500;
+}
+
+.field-validation-error::before {
+    content: "\f33a";
+    font-family: "bootstrap-icons";
+    font-size: .78rem;
+}
+
+.form-control-custom.input-validation-error {
+    border-color: #fca5a5;
+    background: #fffafa;
+}
+
+.form-control-custom.input-validation-error:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, .10);
+}
+
+.custom-check:has(input.input-validation-error) {
+    border-color: #fca5a5;
+    background: #fffafa;
+}
+
+
+</style>
+
+<div class="container-fluid py-4">
+<div class="user-create-page">
+    <a href="/Users/Index" class="back-link">
+        <i class="bi bi-arrow-left"></i>
+        Kullanıcılara Dön
+    </a>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                Yeni Kullanıcı
+            </h1>
+            <p class="page-description">
+                Sisteme yeni bir kullanıcı hesabı oluşturun.
+            </p>
+        </div>
+    </div>
+
+    <div class="create-layout">
+        <!-- LEFT -->
+        <div>
+            <form asp-action="Create" asp-controller="Users" method="post">
+                <!-- ACCOUNT INFORMATION -->
+                <div asp-validation-summary="ModelOnly" class="validation-summary-custom" role="alert"></div>
+                <div class="form-card">
+                    <div class="card-header-custom">
+                        <h5 class="card-title">
+                            Hesap Bilgileri
+                        </h5>
+                        <div class="card-description">
+                            Kullanıcının temel hesap bilgilerini girin.
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    Kullanıcı Adı
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control-custom" placeholder="Örn. ahmet.yilmaz" asp-for="UserName" />
+                                <span asp-validation-for="UserName"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    E-posta Adresi
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="email" class="form-control-custom" placeholder="ornek@email.com" asp-for="Email" />
+                                <span asp-validation-for="Email"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label-custom">
+                                    Telefon Numarası
+                                </label>
+                                <input type="tel" class="form-control-custom" placeholder="+90 5XX XXX XX XX" asp-for="PhoneNumber" />
+                                <div class="form-help">
+                                    Telefon numarası isteğe bağlıdır.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SECURITY -->
+                <div class="form-card">
+                    <div class="card-header-custom">
+                        <h5 class="card-title">
+                            Güvenlik
+                        </h5>
+                        <div class="card-description">
+                            Kullanıcının giriş yapabilmesi için bir şifre belirleyin.
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    Şifre
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-group-custom">
+                                    <input type="password"
+                                           id="password"
+                                           class="form-control-custom"
+                                           placeholder="Şifre girin"
+                                           asp-for="Password" />
+                                           <span asp-validation-for="Password"></span>
+                                    <button type="button"
+                                            class="password-toggle"
+                                            data-target="password">
+                                        <i class="bi bi-eye"></i>
+
+                                    </button>
+
+                                </div>
+
+                                <div class="form-help">
+                                    En az 8 karakter kullanmanız önerilir.
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label-custom">
+                                    Şifre Tekrar
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div class="input-group-custom">
+
+                                    <input type="password"
+                                           id="confirmPassword"
+                                           class="form-control-custom"
+                                           placeholder="Şifreyi tekrar girin"
+                                           asp-for="ConfirmPassword" />
+                                    <span asp-validation-for="ConfirmPassword"></span>
+                                    <button type="button"
+                                            class="password-toggle"
+                                            data-target="confirmPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="section-divider"></div>
+                        <label class="form-label-custom mb-3">
+                            Hesap Seçenekleri
+                        </label>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="custom-check">
+                                    <input type="checkbox"
+                                           asp-for="EmailConfirmed"
+                                           checked />
+
+                                    <span class="custom-check-text">
+                                        <span class="custom-check-title">
+                                            E-posta doğrulandı
+                                        </span>
+                                        <span class="custom-check-description">
+                                            Kullanıcının e-posta adresi doğrulanmış kabul edilir.
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="custom-check">
+                                    <input type="checkbox"
+                                           asp-for="PhoneNumberConfirmed"
+                                           checked />
+                                    <span class="custom-check-text">
+                                        <span class="custom-check-title">
+                                            Telefon doğrulandı
+                                        </span>
+                                        <span class="custom-check-description">
+                                            Telefon numarası doğrulanmış olarak kaydedilir.
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROLES -->
+                <div class="form-card">
+                    <div class="card-header-custom">
+                        <h5 class="card-title">
+                            Roller
+                        </h5>
+                        <div class="card-description">
+                            Kullanıcının sistem içerisindeki yetkilerini belirleyin.
+                        </div>
+                    </div>
+
+                    <div class="card-body-custom">
+                        <div class="role-list">
+                            <div class="role-option">
+                                <input type="checkbox"
+                                       id="roleUser"
+                                       checked />
+                                <label for="roleUser">
+                                    <i class="bi bi-person"></i>
+                                    User
+                                </label>
+                            </div>
+
+                            <div class="role-option">
+                                <input type="checkbox"
+                                       id="roleAdmin" />
+                                <label for="roleAdmin">
+                                    <i class="bi bi-shield"></i>
+                                    Admin
+                                </label>
+                            </div>
+
+                            <div class="role-option">
+                                <input type="checkbox"
+                                       id="roleModerator" />
+                                <label for="roleModerator">
+                                    <i class="bi bi-person-gear"></i>
+                                    Moderator
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="form-card">
+                    <div class="form-actions">
+                        <a href="#"
+                           class="btn-custom btn-cancel">
+                            Vazgeç
+                        </a>
+                        <button type="submit" class="btn-custom btn-primary-custom">
+                            <i class="bi bi-person-plus"></i>
+                            Kullanıcı Oluştur
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+
+        <aside>
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-person-plus"></i>
+                </div>
+                <div class="info-title">
+                    Yeni kullanıcı hesabı
+                </div>
+                <p class="info-text">
+                    Oluşturduğunuz kullanıcı, belirlediğiniz roller ile
+                    sisteme giriş yapabilecektir.
+                </p>
+                <div class="info-list">
+                    <div class="info-list-item">
+                        <i class="bi bi-check-circle"></i>
+                        <span>
+                            Kullanıcı adı sistem içerisinde benzersiz olmalıdır.
+                        </span>
+                    </div>
+                    <div class="info-list-item">
+                        <i class="bi bi-check-circle"></i>
+                        <span>
+                            Güçlü bir şifre kullanmanız önerilir.
+                        </span>
+                    </div>
+
+                    <div class="info-list-item">
+                        <i class="bi bi-check-circle"></i>
+                        <span>
+                            Kullanıcıya bir veya birden fazla rol atayabilirsiniz.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+    document
+        .querySelectorAll(".password-toggle")
+        .forEach(button => {
+
+            button.addEventListener("click", function () {
+
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector("i");
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.classList.remove("bi-eye");
+                    icon.classList.add("bi-eye-slash");
+                }
+                else {
+                    input.type = "password";
+                    icon.classList.remove("bi-eye-slash");
+                    icon.classList.add("bi-eye");
+                }
+            });
+        });
+
+</script>

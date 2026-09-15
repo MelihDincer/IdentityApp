@@ -1,0 +1,478 @@
+@{
+ViewData["Title"] = "Kullanıcı Detayları";
+}
+
+<style>
+
+    .user-details-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    /* =========================
+       BACK
+    ========================== */
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #6b7280;
+        font-size: .9rem;
+        margin-bottom: 20px;
+        transition: .2s ease;
+    }
+
+    .back-link:hover {
+        color: #111827;
+    }
+
+    /* =========================
+       PROFILE HEADER
+    ========================== */
+
+    .profile-header {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, .04);
+        margin-bottom: 24px;
+    }
+
+    .profile-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+    }
+
+    .profile-user {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        flex: 0 0 72px;
+        border-radius: 20px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .profile-name {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .profile-email {
+        color: #6b7280;
+        font-size: .9rem;
+        margin-bottom: 10px;
+    }
+
+    .profile-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .status-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-success {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .status-danger {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .status-neutral {
+        background: #f8fafc;
+        color: #64748b;
+    }
+
+    /* =========================
+       BUTTONS
+    ========================== */
+
+    .profile-actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        height: 42px;
+        padding: 0 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 9px;
+        font-size: .84rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+    .btn-edit {
+        background: #111827;
+        color: #ffffff;
+        border: 1px solid #111827;
+    }
+
+    .btn-edit:hover {
+        background: #374151;
+        color: #ffffff;
+    }
+
+    .btn-delete {
+        background: #ffffff;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: #fef2f2;
+    }
+
+    /* =========================
+       GRID
+    ========================== */
+
+    .details-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* =========================
+       CARD
+    ========================== */
+
+    .details-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, .04);
+    }
+
+    .details-card-header {
+        padding: 19px 22px;
+        border-bottom: 1px solid #eef0f3;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .details-card-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: #f1f5f9;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .details-card-title {
+        color: #111827;
+        font-size: .94rem;
+        font-weight: 650;
+        margin: 0;
+    }
+
+    .details-card-body {
+        padding: 6px 22px;
+    }
+
+    /* =========================
+       INFO ROW
+    ========================== */
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 17px 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #9ca3af;
+        font-size: .82rem;
+        min-width: 160px;
+    }
+
+    .info-label i {
+        font-size: .95rem;
+    }
+
+    .info-value {
+        color: #374151;
+        font-size: .86rem;
+        font-weight: 500;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    .info-value-muted {
+        color: #9ca3af;
+    }
+
+    /* =========================
+       ROLES
+    ========================== */
+
+    .role-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 20px 0;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 11px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        color: #475569;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================== */
+
+    .sidebar-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, .04);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+        color: #111827;
+        font-size: .9rem;
+        font-weight: 650;
+        margin-bottom: 17px;
+    }
+
+    .security-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .security-item:last-child {
+        border-bottom: none;
+    }
+
+    .security-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .security-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+    }
+
+    .security-name {
+        font-size: .8rem;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .security-description {
+        color: #9ca3af;
+        font-size: .7rem;
+        margin-top: 2px;
+    }
+
+    .security-status {
+        font-size: .74rem;
+        font-weight: 600;
+    }
+
+    .security-enabled {
+        color: #15803d;
+    }
+
+    .security-disabled {
+        color: #9ca3af;
+    }
+
+    /* =========================
+       TECHNICAL ID
+    ========================== */
+
+    .technical-id {
+        background: #f8fafc;
+        border: 1px solid #eef0f3;
+        border-radius: 9px;
+        padding: 11px;
+        font-family: monospace;
+        font-size: .72rem;
+        color: #64748b;
+        word-break: break-all;
+        line-height: 1.5;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @@media (max-width: 992px) {
+
+        .details-layout {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+    @@media (max-width: 768px) {
+
+        .profile-header-inner {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .profile-actions {
+            width: 100%;
+        }
+
+        .btn-action {
+            flex: 1;
+        }
+
+    }
+
+    @@media (max-width: 576px) {
+
+        .profile-header {
+            padding: 20px;
+        }
+
+        .profile-user {
+            align-items: flex-start;
+        }
+
+        .profile-avatar {
+            width: 58px;
+            height: 58px;
+            flex-basis: 58px;
+            border-radius: 16px;
+        }
+
+        .info-row {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .info-value {
+            text-align: left;
+        }
+
+    }
+
+</style>
+
+<div class="container-fluid py-4">
+<div class="user-details-page">
+
+
+    <!-- BACK -->
+
+    <a href="#" class="back-link">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Kullanıcılara Dön
+
+    </a>
+
+
+    <!-- PROFILE HEADER -->
+
+    <div class="profile-header">
+
+        <div class="profile-header-inner">
+
+
+            <div class="profile-user">
+
+                <div class="profile-avatar">
+                    A
+                </div>
+
+
+                <div>
+
+                    <div class="profile-name">
+                        Ahmet Yılmaz
+                    </div>
+
+                   
