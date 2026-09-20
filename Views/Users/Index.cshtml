@@ -96,26 +96,21 @@
                         var searchText = string.Join(" ", new[] { user.FullName, user.Email, user.PhoneNumber, user.Id, user.EmailConfirmed ? "doğrulandı aktif" : "doğrulanmadı", user.TwoFactorEnabled ? "2fa aktif güvenli" : "2fa kapalı", isLocked ? "kilitli" : "aktif" }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
                         <tr class="user-row" data-search="@searchText">
-
                             <!-- User -->
                             <td>
                                 <div class="user-info">
-
                                     <div class="avatar">
                                         @initial
                                     </div>
-
                                     <div>
                                         <div class="username">
                                             @displayName
                                         </div>
-
                                         <div class="user-id"
                                              title="@user.Id">
                                             @user.Id
                                         </div>
                                     </div>
-
                                 </div>
                             </td>
 

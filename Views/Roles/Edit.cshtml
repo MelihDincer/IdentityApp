@@ -1,0 +1,152 @@
+@model EditRoleViewModel
+
+@{
+    ViewData["Title"] = "Rol Düzenle";
+}
+
+<link rel="stylesheet"
+      href="~/css/role.css"
+      asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <div class="roles-page">
+
+        <a asp-controller="Roles"
+           asp-action="Index"
+           class="roles-back">
+
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Rollere Dön
+        </a>
+
+        <div class="roles-header">
+            <div>
+                <h1 class="roles-title">Rol Düzenle</h1>
+
+                <p class="roles-description">
+                    Rolün görünen adını ve açıklamasını güncelleyin.
+                </p>
+            </div>
+        </div>
+
+        <form asp-controller="Roles"
+              asp-action="Edit"
+              method="post"
+              asp-antiforgery="true">
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ConcurrencyStamp" />
+
+            <div class="roles-card">
+                <div class="roles-card-header">
+                    <span class="roles-icon">
+                        <i class="bi bi-shield-check"
+                           aria-hidden="true"></i>
+                    </span>
+
+                    <h2 class="roles-card-title">Rol Bilgileri</h2>
+                </div>
+
+                <div class="roles-body">
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"
+                         role="alert"></div>
+
+                    <div class="mb-4">
+                        <label for="roleTechnicalName"
+                               class="roles-label">
+                            Teknik Rol Adı
+                        </label>
+
+                        <input id="roleTechnicalName"
+                               type="text"
+                               value="@Model.Name"
+                               class="roles-input"
+                               disabled
+                               aria-describedby="roleTechnicalNameHelp" />
+
+                        <div class="roles-help"
+                             id="roleTechnicalNameHelp">
+                            Yetkilendirme kurallarında kullanıldığı için
+                            teknik rol adı değiştirilemez.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="DisplayName"
+                               class="roles-label">
+                            Görünen Rol Adı
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input asp-for="DisplayName"
+                               class="roles-input"
+                               placeholder="Örn. Depo Sorumlusu"
+                               autocomplete="off"
+                               maxlength="100"
+                               aria-describedby="displayNameError" />
+
+                        <span asp-validation-for="DisplayName"
+                              id="displayNameError"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Description"
+                               class="roles-label">
+                            Açıklama
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  class="roles-input roles-textarea"
+                                  placeholder="Rolün kullanım amacını yazın."
+                                  maxlength="500"
+                                  rows="4"
+                                  aria-describedby="descriptionError"></textarea>
+
+                        <span asp-validation-for="Description"
+                              id="descriptionError"></span>
+                    </div>
+
+                    <div class="roles-notice">
+                        <i class="bi bi-info-circle"
+                           aria-hidden="true"></i>
+
+                        <span>
+                            Aktif/pasif durumunu rol listesindeki
+                            işlem butonundan değiştirebilirsiniz.
+                        </span>
+                    </div>
+
+                    <div class="mt-3">
+                        <a asp-controller="Roles"
+                           asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="roles-back mb-0">
+                            <i class="bi bi-arrow-clockwise"
+                               aria-hidden="true"></i>
+                            Güncel Bilgileri Yeniden Yükle
+                        </a>
+                    </div>
+                </div>
+
+                <div class="roles-actions">
+                    <a asp-controller="Roles"
+                       asp-action="Index"
+                       class="roles-button roles-button-secondary">
+                        Vazgeç
+                    </a>
+
+                    <button type="submit" class="roles-button">
+                        <i class="bi bi-check2" aria-hidden="true"></i>
+                        Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

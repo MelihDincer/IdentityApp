@@ -1,0 +1,138 @@
+@model CreateRoleViewModel
+
+@{
+    ViewData["Title"] = "Yeni Rol";
+}
+<link rel="stylesheet" href="~/css/role.css" asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <div class="roles-page">
+
+        <a asp-controller="Roles"
+           asp-action="Index"
+           class="roles-back">
+
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Rollere Dön
+        </a>
+
+        <div class="roles-header">
+            <div>
+                <h1 class="roles-title">Yeni Rol</h1>
+
+                <p class="roles-description">
+                    Kullanıcılara atanabilecek yeni bir rol tanımlayın.
+                </p>
+            </div>
+        </div>
+
+        <form asp-controller="Roles"
+              asp-action="Create"
+              method="post"
+              asp-antiforgery="true">
+
+            <div class="roles-card">
+                <div class="roles-card-header">
+                    <span class="roles-icon">
+                        <i class="bi bi-shield-plus" aria-hidden="true"></i>
+                    </span>
+
+                    <h2 class="roles-card-title">Rol Bilgileri</h2>
+                </div>
+
+                <div class="roles-body">
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3"
+         role="alert"></div>
+
+    <div class="mb-4">
+        <label asp-for="Name" class="roles-label">
+            Teknik Rol Adı
+            <span class="text-danger">*</span>
+        </label>
+
+        <input asp-for="Name"
+               class="roles-input"
+               placeholder="Örn. DepoSorumlusu"
+               autocomplete="off"
+               maxlength="256"
+               aria-describedby="roleNameError roleNameHelp" />
+
+        <span asp-validation-for="Name"
+              id="roleNameError"></span>
+
+        <div class="roles-help" id="roleNameHelp">
+            Uygulamanın yetkilendirmede kullanacağı benzersiz addır.
+            Oluşturulduktan sonra düzenlenmez.
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="DisplayName" class="roles-label">
+            Görünen Rol Adı
+            <span class="text-danger">*</span>
+        </label>
+
+        <input asp-for="DisplayName"
+               class="roles-input"
+               placeholder="Örn. Depo Sorumlusu"
+               autocomplete="off"
+               maxlength="100"
+               aria-describedby="roleDisplayNameError roleDisplayNameHelp" />
+
+        <span asp-validation-for="DisplayName"
+              id="roleDisplayNameError"></span>
+
+        <div class="roles-help" id="roleDisplayNameHelp">
+            Kullanıcıların ekranlarda göreceği rol adıdır.
+        </div>
+    </div>
+
+    <div>
+        <label asp-for="Description" class="roles-label">
+            Açıklama
+        </label>
+
+        <textarea asp-for="Description"
+                  class="roles-input roles-textarea"
+                  placeholder="Rolün kullanım amacını yazın."
+                  maxlength="500"
+                  rows="4"
+                  aria-describedby="roleDescriptionError"></textarea>
+
+        <span asp-validation-for="Description"
+              id="roleDescriptionError"></span>
+    </div>
+
+    <div class="roles-notice">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+
+        <span>
+            Yeni rol aktif olarak oluşturulur.
+            Rolün erişebileceği işlemler ayrıca yetkilendirme
+            kurallarıyla belirlenir.
+        </span>
+    </div>
+</div>
+
+                <div class="roles-actions">
+                    <a asp-controller="Roles"
+                       asp-action="Index"
+                       class="roles-button roles-button-secondary">
+                        Vazgeç
+                    </a>
+
+                    <button type="submit" class="roles-button">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                        Rol Oluştur
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -697,31 +697,40 @@ ViewData["Title"] = "Yeni Kullanıcı";
                             <div class="role-option">
                                 <input type="checkbox"
                                        id="roleUser"
-                                       checked />
+                                       name="Roles"
+                                       value="User"
+                                       checked="@(Model.Roles?.Contains("User") == true)" />
                                 <label for="roleUser">
                                     <i class="bi bi-person"></i>
                                     User
                                 </label>
                             </div>
-
                             <div class="role-option">
                                 <input type="checkbox"
-                                       id="roleAdmin" />
+                                       id="roleAdmin"
+                                       name="Roles"
+                                       value="Admin"
+                                       checked="@(Model.Roles?.Contains("Admin") == true)" />
+
                                 <label for="roleAdmin">
                                     <i class="bi bi-shield"></i>
                                     Admin
                                 </label>
                             </div>
-
                             <div class="role-option">
                                 <input type="checkbox"
-                                       id="roleModerator" />
+                                       id="roleModerator"
+                                       name="Roles"
+                                       value="Moderator"
+                                       checked="@(Model.Roles?.Contains("Moderator") == true)" />
+
                                 <label for="roleModerator">
                                     <i class="bi bi-person-gear"></i>
                                     Moderator
                                 </label>
                             </div>
                         </div>
+                    <span asp-validation-for="Roles"></span>
                     </div>
                 </div>
 

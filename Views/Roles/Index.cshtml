@@ -1,0 +1,372 @@
+@model List<RoleListViewModel>
+
+@{
+    ViewData["Title"] = "Roller";
+}
+
+<link rel="stylesheet"
+      href="~/css/role.css"
+      asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <div class="roles-page">
+
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="alert alert-success d-flex align-items-center gap-2"
+                 role="alert">
+
+                <i class="bi bi-check-circle" aria-hidden="true"></i>
+                <span>@successMessage</span>
+            </div>
+        }
+
+        @if (TempData["WarningMessage"] is string warningMessage)
+        {
+            <div class="alert alert-warning d-flex align-items-center gap-2"
+                 role="alert">
+
+                <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                <span>@warningMessage</span>
+            </div>
+        }
+
+        <div class="roles-header">
+            <div>
+                <h1 class="roles-title">Roller</h1>
+
+                <p class="roles-description">
+                    Sistem rollerini ve kullanım durumlarını yönetin.
+                </p>
+            </div>
+
+            <a asp-controller="Roles"
+               asp-action="Create"
+               class="roles-button">
+
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                Yeni Rol
+            </a>
+        </div>
+
+        <div class="roles-card">
+            <div class="roles-card-header">
+                <span class="roles-icon">
+                    <i class="bi bi-shield-check" aria-hidden="true"></i>
+                </span>
+
+                <div>
+                    <h2 class="roles-card-title">Tanımlı Roller</h2>
+
+                    <div class="roles-help">
+                        Toplam @Model.Count rol
+                        · @Model.Count(role => role.IsActive) aktif
+                        · @Model.Count(role => !role.IsActive) pasif
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="roles-table roles-management-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Rol</th>
+                                <th scope="col">Açıklama</th>
+                                <th scope="col">Kullanıcı</th>
+                                <th scope="col">Durum</th>
+                                <th scope="col" class="text-end">İşlemler</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var role in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="role-identity">
+                                            <span class="roles-icon">
+                                                <i class="bi bi-person-badge"
+                                                   aria-hidden="true"></i>
+                                            </span>
+
+                                            <div>
+                                                <div class="role-display-name">
+                                                    @role.DisplayName
+                                                </div>
+
+                                                <div class="role-technical-name">
+                                                    @role.Name
+                                                </div>
+
+                                                @if (role.IsSystemRole)
+                                                {
+                                                    <span class="role-system-badge">
+                                                        <i class="bi bi-lock"
+                                                           aria-hidden="true"></i>
+                                                        Sistem Rolü
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="role-description">
+                                            @(string.IsNullOrWhiteSpace(role.Description)
+                                                ? "Açıklama eklenmemiş."
+                                                : role.Description)
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="role-user-count">
+                                            <i class="bi bi-people"
+                                               aria-hidden="true"></i>
+                                            @role.UserCount
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="role-status @(role.IsActive
+                                            ? "role-status-active"
+                                            : "role-status-inactive")">
+
+                                            <i class="bi @(role.IsActive
+                                                ? "bi-check-circle"
+                                                : "bi-pause-circle")"
+                                               aria-hidden="true"></i>
+
+                                            @(role.IsActive ? "Aktif" : "Pasif")
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="role-actions">
+                                            <a asp-controller="Roles"
+                                               asp-action="Edit"
+                                               asp-route-id="@role.Id"
+                                               class="role-action"
+                                               title="Rolü düzenle"
+                                               aria-label="@(role.DisplayName + " rolünü düzenle")">
+
+                                                <i class="bi bi-pencil"
+                                                   aria-hidden="true"></i>
+                                            </a>
+
+                                            @if (!role.IsSystemRole)
+                                            {
+                                                <button type="button"
+                                                        class="role-action role-status-button"
+                                                        data-role-id="@role.Id"
+                                                        data-role-name="@role.DisplayName"
+                                                        data-target-active="@(!role.IsActive ? "true" : "false")"
+                                                        title="@(role.IsActive ? "Pasife al" : "Aktife al")"
+                                                        aria-label="@(role.DisplayName + (role.IsActive ? " rolünü pasife al" : " rolünü aktife al"))">
+
+                                                    <i class="bi @(role.IsActive
+                                                        ? "bi-pause-circle"
+                                                        : "bi-play-circle")"
+                                                       aria-hidden="true"></i>
+                                                </button>
+
+                                                @if (role.UserCount == 0)
+                                                {
+                                                    <button type="button"
+                                                            class="role-action role-action-danger role-delete-button"
+                                                            data-role-id="@role.Id"
+                                                            data-role-name="@role.DisplayName"
+                                                            title="Rolü sil"
+                                                            aria-label="@(role.DisplayName + " rolünü sil")">
+
+                                                        <i class="bi bi-trash3"
+                                                           aria-hidden="true"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span title="Kullanıcı atanmış roller silinemez.">
+                                                        <button type="button"
+                                                                class="role-action"
+                                                                disabled
+                                                                aria-label="Kullanıcı atanmış roller silinemez">
+
+                                                            <i class="bi bi-trash3"
+                                                               aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                }
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="roles-empty">
+                    <i class="bi bi-shield fs-2 d-block mb-3"
+                       aria-hidden="true"></i>
+
+                    <strong>Henüz rol oluşturulmamış.</strong>
+
+                    <div class="mt-2">
+                        Yeni Rol butonuyla bir rol tanımlayabilirsiniz.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- SİLME / DURUM DEĞİŞTİRME ONAYI -->
+<div class="modal fade"
+     id="roleActionModal"
+     tabindex="-1"
+     aria-labelledby="roleActionModalTitle"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius: 16px;">
+
+            <div class="modal-body p-4">
+                <div class="text-center">
+                    <div class="role-modal-icon mx-auto mb-3">
+                        <i id="roleActionModalIcon"
+                           class="bi bi-shield"
+                           aria-hidden="true"></i>
+                    </div>
+
+                    <h2 class="fs-5 fw-bold mb-2"
+                        id="roleActionModalTitle"></h2>
+
+                    <p class="text-muted mb-2"
+                       id="roleActionModalMessage"></p>
+
+                    <div class="fw-semibold text-dark"
+                         id="roleActionModalName"></div>
+                </div>
+
+                <form id="roleActionForm"
+                      method="post"
+                      action="@Url.Action("Delete", "Roles")">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" id="roleActionId" />
+
+                    <input type="hidden"
+                           name="isActive"
+                           id="roleActionIsActive"
+                           disabled />
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button"
+                                class="btn btn-light w-50"
+                                data-bs-dismiss="modal">
+                            Vazgeç
+                        </button>
+
+                        <button type="submit"
+                                id="roleActionConfirm"
+                                class="btn btn-dark w-50">
+                            Onayla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modalElement = document.getElementById("roleActionModal");
+            const modal = new bootstrap.Modal(modalElement);
+
+            const form = document.getElementById("roleActionForm");
+            const idInput = document.getElementById("roleActionId");
+            const activeInput = document.getElementById("roleActionIsActive");
+
+            const title = document.getElementById("roleActionModalTitle");
+            const message = document.getElementById("roleActionModalMessage");
+            const name = document.getElementById("roleActionModalName");
+            const icon = document.getElementById("roleActionModalIcon");
+            const confirmButton = document.getElementById("roleActionConfirm");
+
+            // Rol silme onayını hazırla.
+            document.querySelectorAll(".role-delete-button")
+                .forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        form.action = "@Url.Action("Delete", "Roles")";
+
+                        idInput.value = button.dataset.roleId;
+                        activeInput.disabled = true;
+
+                        name.textContent = button.dataset.roleName;
+                        title.textContent = "Rol silinsin mi?";
+                        message.textContent = "Bu işlem geri alınamaz.";
+
+                        icon.className = "bi bi-trash3 text-danger";
+                        confirmButton.className = "btn btn-danger w-50";
+                        confirmButton.textContent = "Rolü Sil";
+
+                        modal.show(button);
+                    });
+                });
+
+            // Aktif/pasif değişikliği onayını hazırla.
+            document.querySelectorAll(".role-status-button")
+                .forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        const makeActive =
+                            button.dataset.targetActive === "true";
+
+                        form.action = "@Url.Action("SetActive", "Roles")";
+
+                        idInput.value = button.dataset.roleId;
+                        activeInput.disabled = false;
+                        activeInput.value = String(makeActive);
+
+                        name.textContent = button.dataset.roleName;
+
+                        title.textContent = makeActive
+                            ? "Rol aktife alınsın mı?"
+                            : "Rol pasife alınsın mı?";
+
+                        message.textContent = makeActive
+                            ? "Rol, yeni kullanıcı atamalarında seçilebilir olacak."
+                            : "Rol, yeni kullanıcı atamalarında seçilemeyecek.";
+
+                        icon.className = makeActive
+                            ? "bi bi-play-circle"
+                            : "bi bi-pause-circle";
+
+                        confirmButton.className = "btn btn-dark w-50";
+                        confirmButton.textContent = makeActive
+                            ? "Aktife Al"
+                            : "Pasife Al";
+
+                        modal.show(button);
+                    });
+                });
+
+            // Pencere kapandığında odağı işlemi açan butona geri ver.
+            let triggerButton = null;
+
+            modalElement.addEventListener("show.bs.modal", function (event) {
+                triggerButton = event.relatedTarget;
+            });
+
+            modalElement.addEventListener("hidden.bs.modal", function () {
+                triggerButton?.focus();
+            });
+        });
+    </script>
+}

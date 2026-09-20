@@ -18,4 +18,7 @@ public class CreateViewModel
     public string ConfirmPassword { get; set; } = string.Empty;
     public bool EmailConfirmed { get; set; } = false;
     public bool PhoneNumberConfirmed { get; set; } = false;
+    [Required(ErrorMessage = "En az bir rol seçmelisiniz.")]
+    [MinLength(1, ErrorMessage = "En az bir rol seçmelisiniz.")]
+    public string[] Roles { get; set; } = Array.Empty<string>();
 }

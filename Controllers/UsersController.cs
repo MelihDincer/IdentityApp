@@ -9,10 +9,14 @@ namespace IdentityApp.Controllers;
 public class UsersController: Controller
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly RoleManager<AppRole> _roleManager;
+    private readonly IdentityContext _dbContext;
 
-    public UsersController(UserManager<AppUser> userManager)
+    public UsersController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IdentityContext dbContext)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
+        _dbContext = dbContext;
     }
 
     public async Task<IActionResult> Index()
@@ -23,7 +27,10 @@ public class UsersController: Controller
 
     public IActionResult Create()
     {
-        return View();
+        return View(new CreateViewModel
+        {
+            Roles = new[] { "User" }
+        });
     }
 
     [HttpPost]
@@ -31,6 +38,17 @@ public class UsersController: Controller
     {
         if (ModelState.IsValid)
         {
+            var roles = model.Roles.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            var allowedRoles = new[] { "User", "Admin", "Moderator" };
+            foreach (var role in roles)
+            {
+                if (!allowedRoles.Contains(role) || !await _roleManager.RoleExistsAsync(role))
+                {
+                    ModelState.AddModelError(nameof(model.Roles), "Seçilen rollerden biri geçersiz veya sistemde tanımlı değil.");
+                    return View(model);
+                }
+            }
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             var user = new AppUser
             {
                 UserName = model.Email,
@@ -40,18 +58,33 @@ public class UsersController: Controller
                 PhoneNumberConfirmed = model.PhoneNumberConfirmed,
                 FullName = model.FullName
             };
-            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
+            IdentityResult createResult = await _userManager.CreateAsync(user, model.Password);
+            if (!createResult.Succeeded)
             {
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                foreach (var error in result.Errors)
+                foreach (var error in createResult.Errors)
                 {
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
+                await transaction.RollbackAsync();
+                return View(model);
             }
+            IdentityResult roleResult = await _userManager.AddToRolesAsync(user, roles);
+            if (!roleResult.Succeeded)
+            {
+                foreach (var error in roleResult.Errors)
+                {
+                    ModelState.AddModelError(
+                    nameof(model.Roles),
+                    error.Description);
+                }
+                // Rol ataması başarısızsa kullanıcı kaydını da geri al.
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+            await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] = "Kullanıcı oluşturuldu ve rolleri atandı.";
+            return RedirectToAction(nameof(Index));
         }
         return View(model);
     }
@@ -63,16 +96,16 @@ public class UsersController: Controller
             TempData["WarningMessage"] = "Düzenlemek istediğiniz kullanıcıyı listeden seçin.";
             return RedirectToAction(nameof(Index));
         }
-    
+
         var user = await _userManager.FindByIdAsync(id);
-    
+
         if (user == null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
-    
+
             return View("UserNotFound");
         }
-    
+
         return View(new EditViewModel
         {
             Id = user.Id,
@@ -83,7 +116,7 @@ public class UsersController: Controller
             PhoneNumberConfirmed = user.PhoneNumberConfirmed
         });
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditViewModel model)
@@ -92,28 +125,28 @@ public class UsersController: Controller
         {
             return BadRequest();
         }
-    
+
         if (!ModelState.IsValid)
         {
             return View(model);
         }
-    
+
         var user = await _userManager.FindByIdAsync(model.Id);
-    
+
         if (user == null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
             return View("UserNotFound");
         }
-    
+
         user.FullName = model.FullName;
         user.Email = model.Email;
         user.PhoneNumber = model.PhoneNumber;
         user.EmailConfirmed = model.EmailConfirmed;
         user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
-    
+
         IdentityResult result = await _userManager.UpdateAsync(user);
-    
+
         if (result.Succeeded)
         {
             if(!string.IsNullOrWhiteSpace(model.NewPassword))
@@ -122,7 +155,7 @@ public class UsersController: Controller
                 await _userManager.AddPasswordAsync(user, model.NewPassword);
                 // var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 // var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
-    
+
                 // if (!passwordResult.Succeeded)
                 // {
                 //     foreach (var error in passwordResult.Errors)
@@ -133,15 +166,15 @@ public class UsersController: Controller
                 // }
             }
             TempData["SuccessMessage"] = "Kullanıcı bilgileri başarıyla güncellendi.";
-    
+
             return RedirectToAction(nameof(Index));
         }
-    
+
         foreach (var error in result.Errors)
         {
             ModelState.AddModelError(string.Empty, error.Description);
         }
-    
+
         return View(model);
     }
 
