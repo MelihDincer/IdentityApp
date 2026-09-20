@@ -57,92 +57,120 @@ public class UsersController: Controller
     }
 
     public async Task<IActionResult> Edit(string? id)
-{
-    if (string.IsNullOrWhiteSpace(id))
     {
-        TempData["WarningMessage"] = "Düzenlemek istediğiniz kullanıcıyı listeden seçin.";
-        return RedirectToAction(nameof(Index));
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            TempData["WarningMessage"] = "Düzenlemek istediğiniz kullanıcıyı listeden seçin.";
+            return RedirectToAction(nameof(Index));
+        }
+    
+        var user = await _userManager.FindByIdAsync(id);
+    
+        if (user == null)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+    
+            return View("UserNotFound");
+        }
+    
+        return View(new EditViewModel
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            EmailConfirmed = user.EmailConfirmed,
+            PhoneNumberConfirmed = user.PhoneNumberConfirmed
+        });
     }
-
-    var user = await _userManager.FindByIdAsync(id);
-
-    if (user == null)
-    {
-        Response.StatusCode = StatusCodes.Status404NotFound;
-
-        return View("UserNotFound");
-    }
-
-    return View(new EditViewModel
-    {
-        Id = user.Id,
-        FullName = user.FullName,
-        Email = user.Email,
-        PhoneNumber = user.PhoneNumber,
-        EmailConfirmed = user.EmailConfirmed,
-        PhoneNumberConfirmed = user.PhoneNumberConfirmed
-    });
-}
-
+    
     [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(EditViewModel model)
-{
-    if (string.IsNullOrWhiteSpace(model.Id))
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EditViewModel model)
     {
-        return BadRequest();
-    }
-
-    if (!ModelState.IsValid)
-    {
+        if (string.IsNullOrWhiteSpace(model.Id))
+        {
+            return BadRequest();
+        }
+    
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+    
+        var user = await _userManager.FindByIdAsync(model.Id);
+    
+        if (user == null)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+            return View("UserNotFound");
+        }
+    
+        user.FullName = model.FullName;
+        user.Email = model.Email;
+        user.PhoneNumber = model.PhoneNumber;
+        user.EmailConfirmed = model.EmailConfirmed;
+        user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
+    
+        IdentityResult result = await _userManager.UpdateAsync(user);
+    
+        if (result.Succeeded)
+        {
+            if(!string.IsNullOrWhiteSpace(model.NewPassword))
+            {
+                await _userManager.RemovePasswordAsync(user);
+                await _userManager.AddPasswordAsync(user, model.NewPassword);
+                // var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                // var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
+    
+                // if (!passwordResult.Succeeded)
+                // {
+                //     foreach (var error in passwordResult.Errors)
+                //     {
+                //         ModelState.AddModelError(string.Empty, error.Description);
+                //     }
+                //     return View(model);
+                // }
+            }
+            TempData["SuccessMessage"] = "Kullanıcı bilgileri başarıyla güncellendi.";
+    
+            return RedirectToAction(nameof(Index));
+        }
+    
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+    
         return View(model);
     }
 
-    var user = await _userManager.FindByIdAsync(model.Id);
-
-    if (user == null)
+    [HttpPost]
+    public async Task<IActionResult> Delete(string? id)
     {
-        Response.StatusCode = StatusCodes.Status404NotFound;
-        return View("UserNotFound");
-    }
-
-    user.FullName = model.FullName;
-    user.Email = model.Email;
-    user.PhoneNumber = model.PhoneNumber;
-    user.EmailConfirmed = model.EmailConfirmed;
-    user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
-
-    IdentityResult result = await _userManager.UpdateAsync(user);
-
-    if (result.Succeeded)
-    {
-        if(!string.IsNullOrWhiteSpace(model.NewPassword))
+        if (string.IsNullOrWhiteSpace(id))
         {
-            await _userManager.RemovePasswordAsync(user);
-            await _userManager.AddPasswordAsync(user, model.NewPassword);
-            // var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            // var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
-
-            // if (!passwordResult.Succeeded)
-            // {
-            //     foreach (var error in passwordResult.Errors)
-            //     {
-            //         ModelState.AddModelError(string.Empty, error.Description);
-            //     }
-            //     return View(model);
-            // }
+            return BadRequest();
         }
-        TempData["SuccessMessage"] = "Kullanıcı bilgileri başarıyla güncellendi.";
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+            return View("UserNotFound");
+        }
+
+        IdentityResult result = await _userManager.DeleteAsync(user);
+        if (result.Succeeded)
+        {
+            TempData["SuccessMessage"] = "Kullanıcı başarıyla silindi.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
 
         return RedirectToAction(nameof(Index));
     }
-
-    foreach (var error in result.Errors)
-    {
-        ModelState.AddModelError(string.Empty, error.Description);
-    }
-
-    return View(model);
-}
-    
 }

@@ -187,25 +187,21 @@
 
                             <!-- Actions -->
                             <td class="actions">
-<!-- Detay -->
-<a href="@Url.Action("Edit", "Users", new { id = user.Id })"
-   class="action-btn"
-   title="Kullanıcı Detayları">
-    <i class="bi bi-pencil"></i>
-</a>
-
-<!-- Sil -->
-<button type="button"
-        class="action-btn delete-btn"
-        title="Kullanıcıyı Sil"
-        data-user-id="@user.Id"
-        data-user-name="@displayName">
-    <i class="bi bi-trash3"></i>
-</button>
-
-</td>
-
-
+                                <!-- Detay -->
+                                <a href="@Url.Action("Edit", "Users", new { id = user.Id })"
+                                   class="action-btn"
+                                   title="Kullanıcı Detayları">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <!-- Sil -->
+                                <button type="button"
+                                        class="action-btn delete-btn"
+                                        title="Kullanıcıyı Sil"
+                                        data-user-id="@user.Id"
+                                        data-user-name="@displayName">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </td>
                         </tr>
                     }
                 }
@@ -214,46 +210,34 @@
                     <tr>
                         <td colspan="7">
                             <div class="empty-state">
-
                                 <div class="empty-icon">
                                     <i class="bi bi-people"></i>
                                 </div>
-
                                 <strong>Henüz kullanıcı bulunmuyor.</strong>
-
                                 <div class="mt-1">
                                     Sistemde kayıtlı kullanıcı bulunamadı.
                                 </div>
-
                             </div>
                         </td>
                     </tr>
                 }
-
                 </tbody>
             </table>
         </div>
-
     </div>
-
 </div>
 
 </div>
 <!-- Delete Modal -->
-
 <div class="modal fade"
      id="deleteUserModal"
      tabindex="-1"
      aria-labelledby="deleteUserModalLabel"
      aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-         style="border-radius: 16px;">
-
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
         <div class="modal-body p-4">
-
             <div class="text-center">
-
                 <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
                      style="
                         width:56px;
@@ -265,142 +249,107 @@
                      ">
                     <i class="bi bi-trash3"></i>
                 </div>
-
                 <h5 class="fw-bold mb-2">
                     Kullanıcı silinsin mi?
                 </h5>
-
                 <p class="text-muted mb-1">
                     Bu işlem geri alınamaz.
                 </p>
-
-                <div class="fw-semibold text-dark"
-                     id="deleteUserName">
-                </div>
-
+                <div class="fw-semibold text-dark" id="deleteUserName"></div>
             </div>
-
-            <form asp-action="Delete"
-                  asp-controller="Users"
-                  method="post"
-                  id="deleteUserForm">
-
+            <form asp-action="Delete" asp-controller="Users" method="post" id="deleteUserForm">
                 @Html.AntiForgeryToken()
-
-                <input type="hidden"
-                       name="id"
-                       id="deleteUserId" />
-
+                <input type="hidden" name="id" id="deleteUserId" />
                 <div class="d-flex gap-2 mt-4">
-
-                    <button type="button"
-                            class="btn btn-light w-50"
-                            data-bs-dismiss="modal">
-                        Vazgeç
-                    </button>
-
-                    <button type="submit"
-                            class="btn btn-danger w-50">
+                    <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-danger w-50">
                         <i class="bi bi-trash3 me-1"></i>
                         Sil
                     </button>
-
                 </div>
-
             </form>
-
         </div>
-
     </div>
 </div>
 
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const deleteModalElement =
-            document.getElementById("deleteUserModal");
-
-        const deleteModal =
-            new bootstrap.Modal(deleteModalElement);
-
-        const deleteUserId =
-            document.getElementById("deleteUserId");
-
-        const deleteUserName =
-            document.getElementById("deleteUserName");
-
-        document.querySelectorAll(".delete-btn")
-            .forEach(button => {
-
-                button.addEventListener("click", function () {
-
-                    const userId =
-                        this.dataset.userId;
-
-                    const userName =
-                        this.dataset.userName;
-
-                    deleteUserId.value = userId;
-                    deleteUserName.textContent = userName;
-
-                    deleteModal.show();
-                });
-
-            });
-
-    });
-</script>
-
-<script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function () { const searchInput = document.getElementById("userSearch"); const rows = document.querySelectorAll(".user-row"); const countElement = document.getElementById("userCount"); searchInput.addEventListener("input", function () { const searchText = this.value .toLowerCase() .trim(); let visibleCount = 0; rows.forEach(row => { const searchData = ( row.dataset.search || "" ).toLowerCase(); const visible = searchData.includes(searchText); row.style.display = visible ? "" : "none"; if (visible) { visibleCount++; } }); countElement.textContent = visibleCount; }); 
-    
-    
-    }); </script>
-
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            initializeUserSearch();
+            initializeDeleteModal();
+        });
 
+        // ==================================================
+        // 1. KULLANICI ARAMA
+        // Kullanıcıları filtreler ve görünen sayıyı günceller.
+        // ==================================================
+        function initializeUserSearch() {
             const searchInput = document.getElementById("userSearch");
-            const rows = document.querySelectorAll(".user-row");
             const countElement = document.getElementById("userCount");
+            const rows = document.querySelectorAll("#usersTable .user-row");
+
+            // Aranacak metni her tuşta yeniden hazırlamak yerine
+            // sayfa açıldığında bir kez hazırlıyoruz.
+            const users = Array.from(rows, function (row) {
+                return {
+                    row: row,
+                    searchText: normalizeSearchText(row.dataset.search)
+                };
+            });
 
             function filterUsers() {
-
-                const searchText = searchInput.value
-                    .toLocaleLowerCase("tr-TR")
-                    .trim();
-
+                const searchText = normalizeSearchText(searchInput.value);
                 let visibleCount = 0;
 
-                rows.forEach(function (row) {
+                users.forEach(function (user) {
+                    const isMatch = user.searchText.includes(searchText);
 
-                    const searchData = (row.dataset.search || "")
-                        .toLocaleLowerCase("tr-TR");
-
-                    const isMatch =
-                        searchText === "" ||
-                        searchData.includes(searchText);
-
-                    row.style.display = isMatch ? "" : "none";
+                    user.row.style.display = isMatch ? "" : "none";
 
                     if (isMatch) {
                         visibleCount++;
                     }
                 });
 
-                if (countElement) {
-                    countElement.textContent = visibleCount;
-                }
+                countElement.textContent = visibleCount;
             }
 
-            // Her tuş vuruşunda anında filtrele
             searchInput.addEventListener("input", filterUsers);
 
-            // Sayfa ilk açıldığında da çalıştır
+            // Sayfa açıldığında arama alanında bir değer varsa uygular.
             filterUsers();
-        });
+        }
+
+        // Türkçe büyük/küçük harf dönüşümünü yapar,
+        // baştaki ve sondaki boşlukları temizler.
+        function normalizeSearchText(value) {
+            return (value || "")
+                .toLocaleLowerCase("tr-TR")
+                .trim();
+        }
+
+        // ==================================================
+        // 2. KULLANICI SİLME PENCERESİ
+        // Seçilen kullanıcının bilgilerini modal içine aktarır.
+        // ==================================================
+        function initializeDeleteModal() {
+            const modalElement = document.getElementById("deleteUserModal");
+            const userIdInput = document.getElementById("deleteUserId");
+            const userNameElement = document.getElementById("deleteUserName");
+            const deleteButtons =
+                document.querySelectorAll("#usersTable .delete-btn");
+
+            const deleteModal = new bootstrap.Modal(modalElement);
+
+            deleteButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    userIdInput.value = button.dataset.userId;
+                    userNameElement.textContent = button.dataset.userName;
+                    deleteModal.show();
+                });
+            });
+        }
     </script>
 }
