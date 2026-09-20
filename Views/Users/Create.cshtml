@@ -693,43 +693,39 @@ ViewData["Title"] = "Yeni Kullanıcı";
                     </div>
 
                     <div class="card-body-custom">
-                        <div class="role-list">
-                            <div class="role-option">
-                                <input type="checkbox"
-                                       id="roleUser"
-                                       name="Roles"
-                                       value="User"
-                                       checked="@(Model.Roles?.Contains("User") == true)" />
-                                <label for="roleUser">
-                                    <i class="bi bi-person"></i>
-                                    User
-                                </label>
-                            </div>
-                            <div class="role-option">
-                                <input type="checkbox"
-                                       id="roleAdmin"
-                                       name="Roles"
-                                       value="Admin"
-                                       checked="@(Model.Roles?.Contains("Admin") == true)" />
+                        @if (Model.AvailableRoles.Count == 0)
+{
+    <div class="text-muted" role="status">
+        Atanabilecek aktif rol bulunmuyor.
+        Önce rol yönetiminden aktif bir rol oluşturun.
+    </div>
+}
+else
+{
+    <div class="role-list">
+        @for (var index = 0; index < Model.AvailableRoles.Count; index++)
+        {
+            var role = Model.AvailableRoles[index];
+            var inputId = $"user-role-{index}";
+            var isSelected = Model.Roles?.Contains(role.Name) == true;
 
-                                <label for="roleAdmin">
-                                    <i class="bi bi-shield"></i>
-                                    Admin
-                                </label>
-                            </div>
-                            <div class="role-option">
-                                <input type="checkbox"
-                                       id="roleModerator"
-                                       name="Roles"
-                                       value="Moderator"
-                                       checked="@(Model.Roles?.Contains("Moderator") == true)" />
+            <div class="role-option">
+                <input type="checkbox"
+                       id="@inputId"
+                       name="Roles"
+                       value="@role.Name"
+                       checked="@isSelected" />
 
-                                <label for="roleModerator">
-                                    <i class="bi bi-person-gear"></i>
-                                    Moderator
-                                </label>
-                            </div>
-                        </div>
+                <label for="@inputId">
+                    <i class="bi bi-person-badge" aria-hidden="true"></i>
+                    @role.DisplayName
+                </label>
+            </div>
+        }
+    </div>
+}
+
+<span asp-validation-for="Roles"></span>
                     <span asp-validation-for="Roles"></span>
                     </div>
                 </div>
