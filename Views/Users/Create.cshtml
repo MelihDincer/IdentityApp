@@ -68,9 +68,11 @@ ViewData["Title"] = "Yeni Kullanıcı";
 
     .form-card,
     .info-card {
-        background: #ffffff;
+        overflow: hidden;
+        margin-bottom: 20px;
         border: 1px solid #e5e7eb;
         border-radius: 16px;
+        background: #fff;
         box-shadow: 0 4px 20px rgba(15, 23, 42, .04);
     }
 
@@ -79,9 +81,20 @@ ViewData["Title"] = "Yeni Kullanıcı";
         margin-bottom: 20px;
     }
 
-    .card-header-custom {
-        padding: 20px 24px;
-        border-bottom: 1px solid #eef0f3;
+.card-header-custom {
+        display: block;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #eef0f3;
+    }
+
+    .card-header-custom2 {
+        display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #eef0f3;
     }
 
     .card-title {
@@ -92,9 +105,10 @@ ViewData["Title"] = "Yeni Kullanıcı";
     }
 
     .card-description {
-        color: #9ca3af;
-        font-size: .82rem;
         margin-top: 4px;
+        color: #6b7280;
+        font-size: .8rem;
+        line-height: 1.5;
     }
 
     .card-body-custom {
@@ -469,8 +483,23 @@ ViewData["Title"] = "Yeni Kullanıcı";
     border-color: #fca5a5;
     background: #fffafa;
 }
-
-
+.card-title-custom {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 650;
+    }
+.section-icon {
+    display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 1.1rem;
+}
 </style>
 
 <div class="container-fluid py-4">
@@ -497,14 +526,20 @@ ViewData["Title"] = "Yeni Kullanıcı";
                 <!-- ACCOUNT INFORMATION -->
                 <div asp-validation-summary="ModelOnly" class="validation-summary-custom" role="alert"></div>
                 <div class="form-card">
-                    <div class="card-header-custom">
-                        <h5 class="card-title">
-                            Hesap Bilgileri
-                        </h5>
-                        <div class="card-description">
-                            Kullanıcının temel hesap bilgilerini girin.
+                    <div class="card-header-custom2">
+                            <div class="section-icon">
+                                <i class="bi bi-person" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h2 class="card-title-custom">
+                                    Hesap Bilgileri
+                                </h2>
+                                <div class="card-description">
+                                    Kullanıcının temel bilgilerini ekleyin.
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
                     <div class="card-body-custom">
                         <div class="row g-4">
                             <div class="col-md-6">
@@ -512,8 +547,8 @@ ViewData["Title"] = "Yeni Kullanıcı";
                                     Kullanıcı Adı
                                     <span class="required">*</span>
                                 </label>
-                                <input type="text" class="form-control-custom" placeholder="Örn. ahmet.yilmaz" asp-for="UserName" />
-                                <span asp-validation-for="UserName"></span>
+                                <input type="text" class="form-control-custom" placeholder="Örn. ahmet.yilmaz" asp-for="FullName" />
+                                <span asp-validation-for="FullName"></span>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-custom">
@@ -631,9 +666,7 @@ ViewData["Title"] = "Yeni Kullanıcı";
 
                             <div class="col-md-6">
                                 <label class="custom-check">
-                                    <input type="checkbox"
-                                           asp-for="PhoneNumberConfirmed"
-                                           checked />
+                                    <input type="checkbox" asp-for="PhoneNumberConfirmed" checked />
                                     <span class="custom-check-text">
                                         <span class="custom-check-title">
                                             Telefon doğrulandı

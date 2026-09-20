@@ -1,6 +1,28 @@
-@model IEnumerable<IdentityUser>
+@model IEnumerable<AppUser>
 
 <div class="container-fluid py-4"> <div class="users-page">
+
+    @if (TempData["WarningMessage"] is string warningMessage)
+{
+    <div class="alert alert-warning d-flex align-items-center gap-2"
+         role="alert"
+         style="border-radius: 12px; font-size: .88rem;">
+
+        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+
+        <span>@warningMessage</span>
+    </div>
+}
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2"
+         role="alert"
+         style="border-radius: 12px; font-size: .88rem;">
+
+        <i class="bi bi-check-circle" aria-hidden="true"></i>
+        <span>@successMessage</span>
+    </div>
+}
 
     <!-- Header -->
 
@@ -63,15 +85,15 @@
                 {
                     foreach (var user in Model)
                     {
-                        var displayName = string.IsNullOrWhiteSpace(user.UserName)
+                        var displayName = string.IsNullOrWhiteSpace(user.FullName)
                             ? "Bilinmeyen Kullanıcı"
-                            : user.UserName;
+                            : user.FullName;
 
                         var initial = displayName.Substring(0, 1).ToUpper();
 
                         var isLocked = user.LockoutEnd.HasValue &&
                                        user.LockoutEnd.Value > DateTimeOffset.UtcNow;
-                        var searchText = string.Join(" ", new[] { user.UserName, user.Email, user.PhoneNumber, user.Id, user.EmailConfirmed ? "doğrulandı aktif" : "doğrulanmadı", user.TwoFactorEnabled ? "2fa aktif güvenli" : "2fa kapalı", isLocked ? "kilitli" : "aktif" }.Where(x => !string.IsNullOrWhiteSpace(x)));
+                        var searchText = string.Join(" ", new[] { user.FullName, user.Email, user.PhoneNumber, user.Id, user.EmailConfirmed ? "doğrulandı aktif" : "doğrulanmadı", user.TwoFactorEnabled ? "2fa aktif güvenli" : "2fa kapalı", isLocked ? "kilitli" : "aktif" }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
                         <tr class="user-row" data-search="@searchText">
 
@@ -166,7 +188,7 @@
                             <!-- Actions -->
                             <td class="actions">
 <!-- Detay -->
-<a href="@Url.Action("Details", "Users", new { id = user.Id })"
+<a href="@Url.Action("Edit", "Users", new { id = user.Id })"
    class="action-btn"
    title="Kullanıcı Detayları">
     <i class="bi bi-pencil"></i>

@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Kullanıcı Bulunamadı";
+}
+
+<style>
+    .user-not-found-page {
+        max-width: 620px;
+        margin: 70px auto;
+        padding: 0 16px;
+    }
+
+    .user-not-found-page .error-card {
+        padding: 48px 32px;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        background: #fff;
+        text-align: center;
+        box-shadow: 0 4px 24px rgba(15, 23, 42, .04);
+    }
+
+    .user-not-found-page .error-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 22px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 2rem;
+    }
+
+    .user-not-found-page .error-code {
+        margin-bottom: 10px;
+        color: #64748b;
+        font-size: .75rem;
+        font-weight: 700;
+        letter-spacing: .12em;
+    }
+
+    .user-not-found-page .error-title {
+        margin: 0 0 12px;
+        color: #111827;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -.03em;
+    }
+
+    .user-not-found-page .error-description {
+        max-width: 410px;
+        margin: 0 auto 28px;
+        color: #6b7280;
+        font-size: .9rem;
+        line-height: 1.8;
+    }
+
+    .user-not-found-page .return-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: 1px solid #111827;
+        border-radius: 10px;
+        background: #111827;
+        color: #fff;
+        font-size: .86rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background .2s;
+    }
+
+    .user-not-found-page .return-button:hover {
+        background: #374151;
+    }
+
+    .user-not-found-page .return-button:focus-visible {
+        outline: 3px solid #94a3b8;
+        outline-offset: 4px;
+    }
+</style>
+
+<div class="user-not-found-page">
+    <div class="error-card">
+
+        <div class="error-icon">
+            <i class="bi bi-person-x" aria-hidden="true"></i>
+        </div>
+
+        <div class="error-code">404 · KAYIT BULUNAMADI</div>
+
+        <h1 class="error-title">Kullanıcı bulunamadı</h1>
+
+        <p class="error-description">
+            Düzenlemek istediğiniz kullanıcı silinmiş olabilir
+            veya bağlantı geçersiz olabilir.
+            Kullanıcı listesine dönerek tekrar seçim yapabilirsiniz.
+        </p>
+
+        <a asp-controller="Users"
+           asp-action="Index"
+           class="return-button">
+
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Kullanıcı Listesine Dön
+        </a>
+
+    </div>
+</div>
