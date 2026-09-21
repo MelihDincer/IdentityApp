@@ -673,7 +673,20 @@
 
                         <div class="card-body-custom">
                             <div class="field-grid">
+                                <div class="field-full">
+                                    <label asp-for="UserName"
+                                           class="form-label-custom">
+                                        Kullanıcı Adı
+                                        <span class="required">*</span>
+                                    </label>
 
+                                    <input asp-for="UserName"
+                                           class="form-control-custom"
+                                           placeholder="Örn. ahmet.yilmaz"
+                                           autocomplete="username" />
+
+                                    <span asp-validation-for="UserName"></span>
+                                </div>
                                 <div class="field-full">
                                     <label asp-for="FullName"
                                            class="form-label-custom">
@@ -730,159 +743,159 @@
 
                     <div class="form-card">
                     <div class="card-header-custom">
-    <div class="section-icon">
-        <i class="bi bi-person-badge" aria-hidden="true"></i>
-    </div>
+                        <div class="section-icon">
+                            <i class="bi bi-person-badge" aria-hidden="true"></i>
+                        </div>
 
-    <div>
-        <h2 class="card-title-custom">Roller</h2>
+                        <div>
+                            <h2 class="card-title-custom">Roller</h2>
 
-        <div class="card-description">
-            Kullanıcının sistem içerisindeki yetkilerini belirleyin.
-        </div>
-    </div>
-</div>
+                            <div class="card-description">
+                                Kullanıcının sistem içerisindeki yetkilerini belirleyin.
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="card-body-custom">
                         @if (Model.AvailableRoles.Count == 0)
-{
-    <div class="text-muted" role="status">
-        Atanabilecek aktif rol bulunmuyor.
-        Önce rol yönetiminden aktif bir rol oluşturun.
-    </div>
-}
-else
-{
-    <div class="role-list">
-        @for (var index = 0; index < Model.AvailableRoles.Count; index++)
-        {
-            var role = Model.AvailableRoles[index];
-            var inputId = $"user-role-{index}";
-            var isSelected = Model.Roles?.Contains(role.Name) == true;
+                        {
+                            <div class="text-muted" role="status">
+                                Atanabilecek aktif rol bulunmuyor.
+                                Önce rol yönetiminden aktif bir rol oluşturun.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="role-list">
+                                @for (var index = 0; index < Model.AvailableRoles.Count; index++)
+                                {
+                                    var role = Model.AvailableRoles[index];
+                                    var inputId = $"user-role-{index}";
+                                    var isSelected = Model.Roles?.Contains(role.Name);
 
-            <div class="role-option">
-                <input type="checkbox"
-                       id="@inputId"
-                       name="Roles"
-                       value="@role.Name"
-                       checked="@isSelected" />
+                                    <div class="role-option">
+                                        <input type="checkbox"
+                                               id="@inputId"
+                                               name="Roles"
+                                               value="@role.Name"
+                                               checked="@isSelected" />
 
-                <label for="@inputId">
-                    <i class="bi bi-person-badge" aria-hidden="true"></i>
-                    @role.DisplayName
-                </label>
-            </div>
-        }
-    </div>
-}
+                                        <label for="@inputId">
+                                            <i class="bi bi-person-badge" aria-hidden="true"></i>
+                                            @role.DisplayName
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        }
 
-<span asp-validation-for="Roles"></span>
+                        <span asp-validation-for="Roles"></span>
                     </div>
                 </div>
 
-<!-- PAROLA -->
-<div class="form-card">
-    <div class="card-header-custom password-card-header">
-        <div class="section-icon">
-            <i class="bi bi-lock" aria-hidden="true"></i>
-        </div>
-
-        <div class="password-heading">
-            <h2 class="card-title-custom">Parola</h2>
-
-            <div class="card-description">
-                İsteğe bağlı olarak yeni bir parola belirleyin.
-            </div>
-        </div>
-
-        <label class="password-switch">
-            <span>Parolayı değiştir</span>
-
-            <input asp-for="ChangePassword"
-                   id="changePasswordToggle"
-                   aria-controls="passwordFields"
-                   aria-expanded="@(Model.ChangePassword ? "true" : "false")" />
-        </label>
-    </div>
-
-    <fieldset id="passwordFields"
-              class="card-body-custom password-fields"
-              hidden="@(!Model.ChangePassword)"
-              disabled="@(!Model.ChangePassword)"
-              aria-label="Yeni parola bilgileri">
-
-        <div class="field-grid">
-            <div>
-                <label asp-for="NewPassword"
-                       class="form-label-custom">
-                    Yeni Parola
-                    <span class="required">*</span>
-                </label>
-
-                <div class="password-input-wrapper">
-                    <input asp-for="NewPassword"
-                           type="password"
-                           id="editNewPassword"
-                           class="form-control-custom"
-                           placeholder="Yeni parola girin"
-                           autocomplete="new-password"
-                           aria-describedby="newPasswordError" />
-
-                    <button type="button"
-                            class="password-eye"
-                            data-password-target="editNewPassword"
-                            aria-label="Parolayı göster"
-                            aria-pressed="false">
-
-                        <i class="bi bi-eye" aria-hidden="true"></i>
-                    </button>
+                <!-- PAROLA -->
+                <div class="form-card">
+                    <div class="card-header-custom password-card-header">
+                        <div class="section-icon">
+                            <i class="bi bi-lock" aria-hidden="true"></i>
+                        </div>
+                
+                        <div class="password-heading">
+                            <h2 class="card-title-custom">Parola</h2>
+                
+                            <div class="card-description">
+                                İsteğe bağlı olarak yeni bir parola belirleyin.
+                            </div>
+                        </div>
+                
+                        <label class="password-switch">
+                            <span>Parolayı değiştir</span>
+                
+                            <input asp-for="ChangePassword"
+                                   id="changePasswordToggle"
+                                   aria-controls="passwordFields"
+                                   aria-expanded="@(Model.ChangePassword ? "true" : "false")" />
+                        </label>
+                    </div>
+                
+                    <fieldset id="passwordFields"
+                              class="card-body-custom password-fields"
+                              hidden="@(!Model.ChangePassword)"
+                              disabled="@(!Model.ChangePassword)"
+                              aria-label="Yeni parola bilgileri">
+                
+                        <div class="field-grid">
+                            <div>
+                                <label asp-for="NewPassword"
+                                       class="form-label-custom">
+                                    Yeni Parola
+                                    <span class="required">*</span>
+                                </label>
+                
+                                <div class="password-input-wrapper">
+                                    <input asp-for="NewPassword"
+                                           type="password"
+                                           id="editNewPassword"
+                                           class="form-control-custom"
+                                           placeholder="Yeni parola girin"
+                                           autocomplete="new-password"
+                                           aria-describedby="newPasswordError" />
+                
+                                    <button type="button"
+                                            class="password-eye"
+                                            data-password-target="editNewPassword"
+                                            aria-label="Parolayı göster"
+                                            aria-pressed="false">
+                
+                                        <i class="bi bi-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                
+                                <span asp-validation-for="NewPassword"
+                                      id="newPasswordError"></span>
+                            </div>
+                
+                            <div>
+                                <label asp-for="ConfirmNewPassword"
+                                       class="form-label-custom">
+                                    Yeni Parola Tekrar
+                                    <span class="required">*</span>
+                                </label>
+                
+                                <div class="password-input-wrapper">
+                                    <input asp-for="ConfirmNewPassword"
+                                           type="password"
+                                           id="editConfirmNewPassword"
+                                           class="form-control-custom"
+                                           placeholder="Yeni parolayı tekrar girin"
+                                           autocomplete="new-password"
+                                           aria-describedby="confirmNewPasswordError" />
+                
+                                    <button type="button"
+                                            class="password-eye"
+                                            data-password-target="editConfirmNewPassword"
+                                            aria-label="Parolayı göster"
+                                            aria-pressed="false">
+                
+                                        <i class="bi bi-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                
+                                <span asp-validation-for="ConfirmNewPassword"
+                                      id="confirmNewPasswordError"></span>
+                            </div>
+                        </div>
+                
+                        <div class="info-notice">
+                            <i class="bi bi-info-circle" aria-hidden="true"></i>
+                
+                            <span>
+                                Yeni parola, Değişiklikleri Kaydet butonuna
+                                bastığınızda uygulanır.
+                            </span>
+                        </div>
+                    </fieldset>
                 </div>
-
-                <span asp-validation-for="NewPassword"
-                      id="newPasswordError"></span>
-            </div>
-
-            <div>
-                <label asp-for="ConfirmNewPassword"
-                       class="form-label-custom">
-                    Yeni Parola Tekrar
-                    <span class="required">*</span>
-                </label>
-
-                <div class="password-input-wrapper">
-                    <input asp-for="ConfirmNewPassword"
-                           type="password"
-                           id="editConfirmNewPassword"
-                           class="form-control-custom"
-                           placeholder="Yeni parolayı tekrar girin"
-                           autocomplete="new-password"
-                           aria-describedby="confirmNewPasswordError" />
-
-                    <button type="button"
-                            class="password-eye"
-                            data-password-target="editConfirmNewPassword"
-                            aria-label="Parolayı göster"
-                            aria-pressed="false">
-
-                        <i class="bi bi-eye" aria-hidden="true"></i>
-                    </button>
-                </div>
-
-                <span asp-validation-for="ConfirmNewPassword"
-                      id="confirmNewPasswordError"></span>
-            </div>
-        </div>
-
-        <div class="info-notice">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-
-            <span>
-                Yeni parola, Değişiklikleri Kaydet butonuna
-                bastığınızda uygulanır.
-            </span>
-        </div>
-    </fieldset>
-</div>
                     <!-- DOĞRULAMA BİLGİLERİ -->
                     <div class="form-card">
                         <div class="card-header-custom">
@@ -956,16 +969,13 @@ else
                                     Vazgeç
                                 </a>
 
-                                <button type="submit"
-                                        class="btn-custom btn-save">
-                                    <i class="bi bi-check2"
-                                       aria-hidden="true"></i>
+                                <button type="submit" class="btn-custom btn-save">
+                                    <i class="bi bi-check2" aria-hidden="true"></i>
                                     Değişiklikleri Kaydet
                                 </button>
                             </div>
                         </div>
                     </div>
-
                 </form>
             </div>
 
@@ -973,7 +983,6 @@ else
             <aside class="edit-sidebar">
                 <div class="info-card">
                     <div class="profile-body">
-
                         <div class="profile-heading">
                             DÜZENLENEN KULLANICI
                         </div>
@@ -1055,40 +1064,27 @@ else
             const toggle = document.getElementById("changePasswordToggle");
             const fields = document.getElementById("passwordFields");
             const password = document.getElementById("editNewPassword");
-            const confirmation =
-                document.getElementById("editConfirmNewPassword");
-
-            const eyeButtons =
-                fields.querySelectorAll("[data-password-target]");
-
+            const confirmation = document.getElementById("editConfirmNewPassword");
+            const eyeButtons = fields.querySelectorAll("[data-password-target]");
             function syncPasswordSection(clearValues = false) {
                 const enabled = toggle.checked;
-
                 fields.hidden = !enabled;
                 fields.disabled = !enabled;
-
                 toggle.setAttribute("aria-expanded", String(enabled));
-
                 password.required = enabled;
                 confirmation.required = enabled;
-
                 if (!enabled && clearValues) {
                     password.value = "";
                     confirmation.value = "";
                     confirmation.setCustomValidity("");
-
                     eyeButtons.forEach(button => {
                         const input = document.getElementById(
                             button.dataset.passwordTarget
                         );
-
-                        input.type = "password";
-
+                        input.type = "password"
                         button.setAttribute("aria-pressed", "false");
                         button.setAttribute("aria-label", "Parolayı göster");
-
                         const icon = button.querySelector("i");
-
                         icon.classList.remove("bi-eye-slash");
                         icon.classList.add("bi-eye");
                     });
@@ -1100,7 +1096,6 @@ else
                     toggle.checked &&
                     confirmation.value !== "" &&
                     password.value !== confirmation.value;
-
                 confirmation.setCustomValidity(
                     mismatch ? "Parolalar birbiriyle eşleşmiyor." : ""
                 );

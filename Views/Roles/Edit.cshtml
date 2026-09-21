@@ -29,6 +29,27 @@
             </div>
         </div>
 
+        <nav class="ru-tabs" aria-label="Rol bölümleri">
+            <a asp-controller="Roles"
+               asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="ru-tab ru-tab-active"
+               aria-current="page">
+
+                <i class="bi bi-sliders" aria-hidden="true"></i>
+                Genel Bilgiler
+            </a>
+
+            <a asp-controller="Roles"
+               asp-action="Users"
+               asp-route-id="@Model.Id"
+               class="ru-tab">
+
+                <i class="bi bi-people" aria-hidden="true"></i>
+                Kullanıcılar
+            </a>
+        </nav>
+
         <form asp-controller="Roles"
               asp-action="Edit"
               method="post"

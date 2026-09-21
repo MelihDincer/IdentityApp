@@ -40,10 +40,7 @@
                 </p>
             </div>
 
-            <a asp-controller="Roles"
-               asp-action="Create"
-               class="roles-button">
-
+            <a asp-controller="Roles" asp-action="Create" class="roles-button">
                 <i class="bi bi-plus-lg" aria-hidden="true"></i>
                 Yeni Rol
             </a>
@@ -74,7 +71,8 @@
                             <tr>
                                 <th scope="col">Rol</th>
                                 <th scope="col">Açıklama</th>
-                                <th scope="col">Kullanıcı</th>
+                                @* <th scope="col">Kullanıcı Sayısı</th> *@
+                                <th scope="col">Kullanıcılar</th>
                                 <th scope="col">Durum</th>
                                 <th scope="col" class="text-end">İşlemler</th>
                             </tr>
@@ -121,12 +119,18 @@
                                     </td>
 
                                     <td>
-                                        <span class="role-user-count">
-                                            <i class="bi bi-people"
-                                               aria-hidden="true"></i>
-                                            @role.UserCount
-                                        </span>
+                                        <a asp-controller="Roles"
+                                           asp-action="Users"
+                                           asp-route-id="@role.Id"
+                                           class="ru-count-link"
+                                           title="Bu role atanmış kullanıcıları görüntüle">
+
+                                            <i class="bi bi-people" aria-hidden="true"></i>
+                                            <span>@role.UserCount kullanıcı</span>
+                                        </a>
                                     </td>
+
+                                    @* <td asp-role-users="@role.Id"></td> *@
 
                                     <td>
                                         <span class="role-status @(role.IsActive
@@ -144,13 +148,7 @@
 
                                     <td>
                                         <div class="role-actions">
-                                            <a asp-controller="Roles"
-                                               asp-action="Edit"
-                                               asp-route-id="@role.Id"
-                                               class="role-action"
-                                               title="Rolü düzenle"
-                                               aria-label="@(role.DisplayName + " rolünü düzenle")">
-
+                                            <a asp-controller="Roles" asp-action="Edit" asp-route-id="@role.Id" class="role-action" title="Rolü düzenle" aria-label="@(role.DisplayName + " rolünü düzenle")">
                                                 <i class="bi bi-pencil"
                                                    aria-hidden="true"></i>
                                             </a>
@@ -252,9 +250,7 @@
                          id="roleActionModalName"></div>
                 </div>
 
-                <form id="roleActionForm"
-                      method="post"
-                      action="@Url.Action("Delete", "Roles")">
+                <form id="roleActionForm" method="post" asp-action="Delete" asp-controller="Roles">
 
                     @Html.AntiForgeryToken()
 
@@ -304,8 +300,6 @@
             document.querySelectorAll(".role-delete-button")
                 .forEach(function (button) {
                     button.addEventListener("click", function () {
-                        form.action = "@Url.Action("Delete", "Roles")";
-
                         idInput.value = button.dataset.roleId;
                         activeInput.disabled = true;
 

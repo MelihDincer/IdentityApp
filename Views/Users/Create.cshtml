@@ -544,7 +544,7 @@ ViewData["Title"] = "Yeni Kullanıcı";
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label class="form-label-custom">
-                                    Kullanıcı Adı
+                                    Ad-Soyad
                                     <span class="required">*</span>
                                 </label>
                                 <input type="text" class="form-control-custom" placeholder="Örn. ahmet.yilmaz" asp-for="FullName" />
@@ -558,8 +558,15 @@ ViewData["Title"] = "Yeni Kullanıcı";
                                 <input type="email" class="form-control-custom" placeholder="ornek@email.com" asp-for="Email" />
                                 <span asp-validation-for="Email"></span>
                             </div>
-
-                            <div class="col-12">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">
+                                    Kullanıcı Adı
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control-custom" placeholder="Örn. ahmet.yilmaz" asp-for="UserName" />
+                                <span asp-validation-for="UserName"></span>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label-custom">
                                     Telefon Numarası
                                 </label>

@@ -88,6 +88,9 @@
                         var displayName = string.IsNullOrWhiteSpace(user.FullName)
                             ? "Bilinmeyen Kullanıcı"
                             : user.FullName;
+                        var userName = string.IsNullOrWhiteSpace(user.UserName)
+                        ? "Bilinmeyen Kullanıcı"
+                        : user.UserName;
 
                         var initial = displayName.Substring(0, 1).ToUpper();
 
@@ -104,11 +107,11 @@
                                     </div>
                                     <div>
                                         <div class="username">
-                                            @displayName
+                                            @user.UserName
                                         </div>
                                         <div class="user-id"
                                              title="@user.Id">
-                                            @user.Id
+                                            @displayName
                                         </div>
                                     </div>
                                 </div>

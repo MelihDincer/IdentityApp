@@ -6,8 +6,10 @@ namespace IdentityApp.ViewModels;
 
 public class CreateViewModel
 {
-     [Required(ErrorMessage = "Ad gereklidir.")]
+    [Required(ErrorMessage = "Ad gereklidir.")]
     public string FullName { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Kullanıcı adı gereklidir.")]
+    public string UserName { get; set; } = string.Empty;
     [Required(ErrorMessage = "E-posta gereklidir.")]
     [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi girin.")]
     public string Email { get; set; } = string.Empty;

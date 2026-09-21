@@ -1,7 +1,18 @@
+/* ==================================================
+   ORTAK SAYFA DÜZENİ
+   ================================================== */
+
 .roles-page {
+  width: 100%;
   max-width: 1180px;
   margin: 0 auto;
   color: #111827;
+}
+
+.roles-page *,
+.roles-page *::before,
+.roles-page *::after {
+  box-sizing: border-box;
 }
 
 .roles-page .roles-header {
@@ -14,8 +25,10 @@
 
 .roles-page .roles-title {
   margin: 0 0 6px;
+  color: #111827;
   font-size: 1.7rem;
   font-weight: 700;
+  line-height: 1.3;
   letter-spacing: -0.03em;
 }
 
@@ -25,6 +38,24 @@
   font-size: 0.9rem;
   line-height: 1.7;
 }
+
+.roles-page .roles-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #6b7280;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.roles-page .roles-back:hover {
+  color: #111827;
+}
+
+/* ==================================================
+   KARTLAR
+   ================================================== */
 
 .roles-page .roles-card {
   overflow: hidden;
@@ -52,17 +83,37 @@
   border-radius: 11px;
   background: #f1f5f9;
   color: #475569;
+  font-size: 1rem;
 }
 
 .roles-page .roles-card-title {
   margin: 0;
+  color: #111827;
   font-size: 1rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 .roles-page .roles-body {
   padding: 24px;
 }
+
+.roles-page .roles-help {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 0.77rem;
+  line-height: 1.7;
+}
+
+.roles-page .roles-empty {
+  padding: 45px 24px;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* ==================================================
+   BUTONLAR
+   ================================================== */
 
 .roles-page .roles-button {
   display: inline-flex;
@@ -78,11 +129,17 @@
   font: inherit;
   font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.4;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .roles-page .roles-button:hover {
+  border-color: #374151;
   background: #374151;
   color: #fff;
 }
@@ -94,61 +151,34 @@
 }
 
 .roles-page .roles-button-secondary:hover {
+  border-color: #cbd5e1;
   background: #f1f5f9;
   color: #111827;
 }
 
-.roles-page .roles-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  color: #6b7280;
-  font-size: 0.88rem;
-  text-decoration: none;
-}
-
-.roles-page .roles-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.roles-page .roles-table th {
-  padding: 15px 24px;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 0.76rem;
-  font-weight: 600;
-  text-align: left;
-}
-
-.roles-page .roles-table td {
+.roles-page .roles-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
   padding: 18px 24px;
   border-top: 1px solid #eef0f3;
-  font-size: 0.86rem;
+  background: #fafafa;
 }
 
-.roles-page .roles-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 600;
-}
-
-.roles-page .roles-id {
-  color: #6b7280;
-  overflow-wrap: anywhere;
-}
+/* ==================================================
+   CREATE / EDIT FORM ALANLARI
+   ================================================== */
 
 .roles-page .roles-label {
   display: block;
   margin-bottom: 8px;
+  color: #374151;
   font-size: 0.86rem;
   font-weight: 600;
 }
 
 .roles-page .roles-input {
-  box-sizing: border-box;
+  display: block;
   width: 100%;
   height: 46px;
   padding: 0 14px;
@@ -166,66 +196,12 @@
   box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.12);
 }
 
-.roles-page .roles-help {
-  margin-top: 8px;
-  color: #6b7280;
-  font-size: 0.77rem;
-  line-height: 1.7;
+.roles-page .roles-input:disabled {
+  background: #f8fafc;
+  color: #64748b;
 }
 
-.roles-page .roles-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 18px 24px;
-  border-top: 1px solid #eef0f3;
-  background: #fafafa;
-}
-
-.roles-page .roles-empty {
-  padding: 45px 24px;
-  color: #6b7280;
-  text-align: center;
-}
-
-.roles-page .field-validation-error {
-  display: block;
-  margin-top: 7px;
-  color: #dc2626;
-  font-size: 0.78rem;
-}
-
-.roles-page .input-validation-error {
-  border-color: #fca5a5;
-}
-
-.roles-page .validation-summary-valid {
-  display: none;
-}
-
-.roles-page a:focus-visible,
-.roles-page button:focus-visible {
-  outline: 3px solid #94a3b8;
-  outline-offset: 3px;
-}
-
-@media (max-width: 576px) {
-  .roles-page .roles-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .roles-page .roles-actions {
-    flex-direction: column-reverse;
-  }
-
-  .roles-page .roles-table th,
-  .roles-page .roles-table td {
-    padding: 14px 16px;
-  }
-}
 .roles-page .roles-textarea {
-  display: block;
   height: auto;
   min-height: 110px;
   padding: 12px 14px;
@@ -250,20 +226,67 @@
   flex-shrink: 0;
 }
 
+.roles-page .field-validation-error {
+  display: block;
+  margin-top: 7px;
+  color: #dc2626;
+  font-size: 0.78rem;
+}
+
+.roles-page .input-validation-error {
+  border-color: #fca5a5;
+}
+
+.roles-page .validation-summary-valid,
+.roles-page .field-validation-valid {
+  display: none;
+}
+
+/* ==================================================
+   ORTAK TABLO
+   ================================================== */
+
+.roles-page .roles-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.roles-page .roles-table th {
+  padding: 15px 24px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.roles-page .roles-table td {
+  padding: 18px 24px;
+  border-top: 1px solid #eef0f3;
+  color: #374151;
+  font-size: 0.86rem;
+  vertical-align: middle;
+}
+
+.roles-page .roles-table tbody tr:hover {
+  background: #fcfdff;
+}
+
 .roles-page .roles-management-table {
   min-width: 850px;
 }
 
-.roles-page .roles-management-table td {
-  vertical-align: middle;
-}
-
+.roles-page .roles-name,
 .roles-page .role-identity {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+.roles-page .roles-name,
 .roles-page .role-display-name {
   color: #111827;
   font-size: 0.87rem;
@@ -271,11 +294,15 @@
   overflow-wrap: anywhere;
 }
 
+.roles-page .roles-id,
 .roles-page .role-technical-name {
-  margin-top: 4px;
   color: #6b7280;
   font-size: 0.74rem;
   overflow-wrap: anywhere;
+}
+
+.roles-page .role-technical-name {
+  margin-top: 4px;
 }
 
 .roles-page .role-system-badge {
@@ -295,15 +322,12 @@
   overflow-wrap: anywhere;
 }
 
-.roles-page .role-user-count {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #475569;
-  font-size: 0.82rem;
-}
+/* ==================================================
+   DURUM ROZETLERİ
+   ================================================== */
 
-.roles-page .role-status {
+.roles-page .role-status,
+.roles-page .ru-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -314,15 +338,21 @@
   white-space: nowrap;
 }
 
-.roles-page .role-status-active {
+.roles-page .role-status-active,
+.roles-page .ru-status-active {
   background: #ecfdf5;
   color: #047857;
 }
 
-.roles-page .role-status-inactive {
+.roles-page .role-status-inactive,
+.roles-page .ru-status-inactive {
   background: #f1f5f9;
   color: #64748b;
 }
+
+/* ==================================================
+   ROL TABLOSU İŞLEMLERİ
+   ================================================== */
 
 .roles-page .role-actions {
   display: flex;
@@ -365,6 +395,276 @@
   cursor: not-allowed;
 }
 
+.roles-page .role-user-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #475569;
+  font-size: 0.82rem;
+}
+
+.roles-page .ru-count-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.roles-page .ru-count-link:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  color: #111827;
+}
+
+/* ==================================================
+   ROL DETAY BAŞLIĞI VE SEKMELER
+   ================================================== */
+
+.roles-page .ru-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.roles-page .ru-heading .roles-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.roles-page .ru-role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 0.77rem;
+  overflow-wrap: anywhere;
+}
+
+.roles-page .ru-tabs {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.roles-page .ru-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 2px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.roles-page .ru-tab:hover {
+  color: #111827;
+}
+
+.roles-page .ru-tab-active {
+  border-bottom-color: #111827;
+  color: #111827;
+  font-weight: 600;
+}
+
+.roles-page .ru-tab-count {
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.72rem;
+}
+
+/* ==================================================
+   KULLANICI ARAMA
+   ================================================== */
+
+.roles-page .ru-toolbar {
+  padding: 18px 24px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.roles-page .ru-search-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.roles-page .ru-search-input {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.roles-page .ru-search-input > i {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.roles-page .ru-search-input input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px 0 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+  font-size: 0.84rem;
+}
+
+.roles-page .ru-search-input input:focus {
+  outline: none;
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12);
+}
+
+.roles-page .ru-search-result {
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+/* ==================================================
+   ROLE ATANMIŞ KULLANICILAR
+   ================================================== */
+
+.roles-page .ru-users-table {
+  min-width: 720px;
+}
+
+.roles-page .ru-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.roles-page .ru-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 1.15rem;
+}
+
+.roles-page .ru-user-name {
+  color: #111827;
+  font-size: 0.86rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.roles-page .ru-user-secondary {
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.roles-page .ru-contact {
+  color: #64748b;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.roles-page .ru-edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  font-size: 0.78rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.roles-page .ru-edit-link:hover {
+  background: #f1f5f9;
+  color: #111827;
+}
+
+/* ==================================================
+   SAYFALAMA
+   ================================================== */
+
+.roles-page .ru-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 18px 24px;
+  border-top: 1px solid #eef0f3;
+  background: #fafafa;
+}
+
+.roles-page .ru-range {
+  color: #64748b;
+  font-size: 0.77rem;
+}
+
+.roles-page .ru-page-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.roles-page .ru-page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+
+.roles-page .ru-page-link:hover {
+  background: #f1f5f9;
+}
+
+.roles-page .ru-page-current,
+.roles-page .ru-page-current:hover {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+/* ==================================================
+   MODAL
+   ================================================== */
+
 #roleActionModal .role-modal-icon {
   display: flex;
   align-items: center;
@@ -379,4 +679,48 @@
 
 #roleActionModal #roleActionModalName {
   overflow-wrap: anywhere;
+}
+
+/* ==================================================
+   KLAVYE ODAĞI VE MOBİL DÜZEN
+   ================================================== */
+
+.roles-page a:focus-visible,
+.roles-page button:focus-visible {
+  outline: 3px solid #94a3b8;
+  outline-offset: 3px;
+}
+
+@media (max-width: 576px) {
+  .roles-page .roles-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .roles-page .roles-actions {
+    flex-direction: column-reverse;
+  }
+
+  .roles-page .roles-card-header,
+  .roles-page .roles-body {
+    padding: 18px;
+  }
+
+  .roles-page .roles-table th,
+  .roles-page .roles-table td {
+    padding: 14px 16px;
+  }
+
+  .roles-page .ru-toolbar,
+  .roles-page .ru-pagination {
+    padding: 16px;
+  }
+
+  .roles-page .ru-tabs {
+    gap: 16px;
+  }
+
+  .roles-page .ru-search-input {
+    flex-basis: 100%;
+  }
 }
