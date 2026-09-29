@@ -103,12 +103,8 @@ public static class IdentitySeedData
                     PhoneNumberConfirmed = false
                 };
 
-                IdentityResult userResult =
-                    await userManager.CreateAsync(user, SeedPassword);
-
-                EnsureSucceeded(
-                    userResult,
-                    "Başlangıç kullanıcısı oluşturulamadı");
+                IdentityResult userResult = await userManager.CreateAsync(user, SeedPassword);
+                EnsureSucceeded(userResult, "Başlangıç kullanıcısı oluşturulamadı");
             }
 
             // 4. Kullanıcının mevcut rollerini öğren.

@@ -1,0 +1,182 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Hesap Oluştur";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@ViewData["Title"] - IdentityApp</title>
+
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+
+<body class="auth-page">
+    <main class="auth-shell">
+
+        <div class="auth-brand">
+            <span class="auth-brand-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.6"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M12 3 20 6v6c0 4-5 8-8 9-3-1-8-5-8-9V6l8-3Z" />
+                    <path d="m8.5 12 2.5 2.5 4.5-5" />
+                </svg>
+            </span>
+
+            <span>IdentityApp</span>
+        </div>
+
+        <div class="auth-panel">
+
+            <aside class="auth-aside" aria-label="Yeni hesap">
+                <div>
+                    <span class="auth-eyebrow">Yeni başlangıç</span>
+
+                    <h2>Çalışma alanınıza<br />ilk adımı atın.</h2>
+
+                    <p>
+                        Bilgilerinizi tamamlayarak hesabınızı oluşturun.
+                        Size tanımlanan uygulamalara ve işlemlere
+                        hesabınız üzerinden erişin.
+                    </p>
+                </div>
+
+                <div class="auth-aside-note">
+                    Zaten hesabınız varsa giriş yaparak devam edebilirsiniz.
+                </div>
+            </aside>
+
+            <section class="auth-content" aria-labelledby="registerTitle">
+                <header class="auth-heading">
+                    <h1 id="registerTitle">Hesap oluştur</h1>
+                    <p>Başlamak için aşağıdaki bilgileri doldurun.</p>
+                </header>
+
+                <form asp-controller="Account"
+                      asp-action="Register"
+                      method="post"
+                      class="auth-form">
+
+                    @Html.ValidationSummary(
+                        true,
+                        "",
+                        new { @class = "auth-validation", role = "alert" })
+
+                    <div class="auth-field">
+                        <label for="FullName" class="auth-label">
+                            Ad soyad
+                        </label>
+
+                        @Html.TextBox("FullName", null, new
+                        {
+                            @class = "auth-input",
+                            placeholder = "Adınız ve soyadınız",
+                            autocomplete = "name",
+                            required = "required",
+                            aria_describedby = "fullNameError"
+                        })
+
+                        @Html.ValidationMessage("FullName", null, new
+                        {
+                            @class = "auth-error",
+                            id = "fullNameError"
+                        })
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="Email" class="auth-label">
+                            E-posta adresi
+                        </label>
+
+                        @Html.TextBox("Email", null, new
+                        {
+                            @class = "auth-input",
+                            type = "email",
+                            placeholder = "ornek@firma.com",
+                            autocomplete = "username",
+                            required = "required",
+                            aria_describedby = "emailHint emailError"
+                        })
+
+                        <small id="emailHint" class="auth-hint">
+                            Hesabınıza giriş yaparken bu adresi kullanacaksınız.
+                        </small>
+
+                        @Html.ValidationMessage("Email", null, new
+                        {
+                            @class = "auth-error",
+                            id = "emailError"
+                        })
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="Password" class="auth-label">
+                            Parola
+                        </label>
+
+                        <input id="Password"
+                               name="Password"
+                               type="password"
+                               class="auth-input"
+                               placeholder="Bir parola belirleyin"
+                               autocomplete="new-password"
+                               aria-describedby="passwordError"
+                               required />
+
+                        @Html.ValidationMessage("Password", null, new
+                        {
+                            @class = "auth-error",
+                            id = "passwordError"
+                        })
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="ConfirmPassword" class="auth-label">
+                            Parola tekrarı
+                        </label>
+
+                        <input id="ConfirmPassword"
+                               name="ConfirmPassword"
+                               type="password"
+                               class="auth-input"
+                               placeholder="Parolanızı tekrar girin"
+                               autocomplete="new-password"
+                               aria-describedby="confirmPasswordError"
+                               required />
+
+                        @Html.ValidationMessage("ConfirmPassword", null, new
+                        {
+                            @class = "auth-error",
+                            id = "confirmPasswordError"
+                        })
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Hesap oluştur
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    Zaten hesabınız var mı?
+                    <a asp-controller="Account" asp-action="Login">
+                        Giriş yap
+                    </a>
+                </p>
+            </section>
+
+        </div>
+
+        <footer class="auth-footer">
+            © @DateTime.Now.Year IdentityApp
+        </footer>
+
+    </main>
+</body>
+</html>

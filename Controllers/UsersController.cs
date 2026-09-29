@@ -1,11 +1,13 @@
 using IdentityApp.Models;
 using IdentityApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace IdentityApp.Controllers;
 
+[Authorize]
 public class UsersController: Controller
 {
     private readonly UserManager<AppUser> _userManager;
