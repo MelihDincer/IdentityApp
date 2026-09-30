@@ -20,13 +20,47 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
-                        </li>
-                    </ul>
+    <li class="nav-item">
+        <a class="nav-link text-dark"
+           asp-controller="Home"
+           asp-action="Index">
+            Ana Sayfa
+        </a>
+    </li>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-controller="Users"
+               asp-action="Index">
+                Kullanıcılar
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-controller="Roles"
+               asp-action="Index">
+                Roller
+            </a>
+        </li>
+    }
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <li class="nav-item ms-sm-auto">
+            <form asp-controller="Account"
+                  asp-action="Logout"
+                  method="post">
+                <button type="submit"
+                        class="nav-link btn btn-link text-dark">
+                    Çıkış yap
+                </button>
+            </form>
+        </li>
+    }
+</ul>
                 </div>
             </div>
         </nav>

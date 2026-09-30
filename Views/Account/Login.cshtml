@@ -124,7 +124,12 @@
                         Giriş yap
                     </button>
                 </form>
-
+                <p class="auth-switch">
+    Doğrulama e-postası ulaşmadı mı?
+    <a asp-controller="Account" asp-action="RegisterConfirmation">
+        Yeniden gönder
+    </a>
+</p>
                 <p class="auth-switch">
                     Henüz hesabınız yok mu?
                     <a asp-controller="Account" asp-action="Register">

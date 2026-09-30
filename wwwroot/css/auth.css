@@ -391,3 +391,18 @@ body.auth-page {
     font-size: 24px;
   }
 }
+.auth-notice {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+a.auth-submit {
+  color: #ffffff;
+  text-decoration: none;
+}

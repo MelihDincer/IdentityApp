@@ -1,0 +1,90 @@
+@model bool
+
+@{
+    Layout = null;
+
+    var title = Model
+        ? "E-posta adresiniz doğrulandı"
+        : "E-posta doğrulanamadı";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title - IdentityApp</title>
+
+    <link rel="stylesheet"
+          href="~/css/auth.css"
+          asp-append-version="true" />
+</head>
+
+<body class="auth-page">
+    <main class="auth-shell">
+
+        <div class="auth-brand">IdentityApp</div>
+
+        <div class="auth-panel">
+
+            <aside class="auth-aside">
+                <div>
+                    <span class="auth-eyebrow">Hesap doğrulama</span>
+
+                    <h2>
+                        @(Model ? "Her şey hazır." : "Yeniden deneyelim.")
+                    </h2>
+
+                    <p>
+                        @(Model
+                            ? "E-posta doğrulama işleminiz tamamlandı."
+                            : "Yeni bir doğrulama bağlantısıyla devam edebilirsiniz.")
+                    </p>
+                </div>
+            </aside>
+
+            <section class="auth-content" aria-labelledby="resultTitle">
+                <header class="auth-heading">
+                    <h1 id="resultTitle">@title</h1>
+
+                    <p>
+                        @(Model
+                            ? "Artık e-posta adresiniz ve parolanızla giriş yapabilirsiniz."
+                            : "Doğrulama bağlantısı geçersiz veya süresi dolmuş olabilir.")
+                    </p>
+                </header>
+
+                @if (Model)
+                {
+                    <a asp-controller="Account"
+                       asp-action="Login"
+                       class="auth-submit">
+                        Giriş yap
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Account"
+                       asp-action="RegisterConfirmation"
+                       class="auth-submit">
+                        Yeni doğrulama bağlantısı iste
+                    </a>
+
+                    <p class="auth-switch">
+                        Daha önce doğruladıysanız
+                        <a asp-controller="Account" asp-action="Login">
+                            Giriş yap
+                        </a>
+                    </p>
+                }
+            </section>
+
+        </div>
+
+        <footer class="auth-footer">
+            © @DateTime.Now.Year IdentityApp
+        </footer>
+
+    </main>
+</body>
+</html>

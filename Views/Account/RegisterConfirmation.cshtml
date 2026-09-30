@@ -1,0 +1,105 @@
+@model IdentityApp.ViewModels.ResendConfirmationViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>E-posta Doğrulama - IdentityApp</title>
+
+    <link rel="stylesheet"
+          href="~/css/auth.css"
+          asp-append-version="true" />
+</head>
+
+<body class="auth-page">
+    <main class="auth-shell">
+        <div class="auth-brand">IdentityApp</div>
+
+        <div class="auth-panel">
+            <aside class="auth-aside">
+                <div>
+                    <span class="auth-eyebrow">E-posta doğrulama</span>
+                    <h2>Gelen kutunuzu<br />kontrol edin.</h2>
+                    <p>
+                        Hesabınıza giriş yapabilmek için e-postanızdaki
+                        doğrulama bağlantısını açın.
+                    </p>
+                </div>
+
+                <div class="auth-aside-note">
+                    Spam klasörünüzü de kontrol etmeyi unutmayın.
+                </div>
+            </aside>
+
+            <section class="auth-content" aria-labelledby="confirmationTitle">
+                <header class="auth-heading">
+    <h1 id="confirmationTitle">E-posta doğrulaması gerekiyor</h1>
+
+    <p>
+        Hesabınıza giriş yapabilmek için önce e-posta adresinizi
+        doğrulamalısınız. Gönderdiğimiz e-postadaki bağlantıyı
+        kullanarak doğrulamayı tamamlayabilirsiniz.
+    </p>
+</header>
+
+                @if (TempData["InfoMessage"] is string message)
+                {
+                    <div class="auth-notice" role="status">
+                        @message
+                    </div>
+                }
+
+                <form asp-controller="Account"
+                      asp-action="ResendConfirmation"
+                      method="post"
+                      class="auth-form">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="auth-validation"
+                         role="alert">
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="Email" class="auth-label">
+                            E-posta adresi
+                        </label>
+
+                        <input asp-for="Email"
+                               type="email"
+                               class="auth-input"
+                               placeholder="ornek@firma.com"
+                               autocomplete="email"
+                               aria-describedby="emailError"
+                               required />
+
+                        <span asp-validation-for="Email"
+                              id="emailError"
+                              class="auth-error">
+                        </span>
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Doğrulama e-postasını yeniden gönder
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    E-posta adresinizi doğruladınız mı?
+                    <a asp-controller="Account" asp-action="Login">
+                        Giriş yap
+                    </a>
+                </p>
+            </section>
+        </div>
+
+        <footer class="auth-footer">
+            © @DateTime.Now.Year IdentityApp
+        </footer>
+    </main>
+</body>
+</html>

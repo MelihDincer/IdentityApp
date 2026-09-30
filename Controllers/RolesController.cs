@@ -1,12 +1,13 @@
 using IdentityApp.Models;
 using IdentityApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace IdentityApp.Controllers;
-
+[Authorize(Roles = "Admin")]
 public class RolesController: Controller
 {
     private readonly RoleManager<AppRole> _roleManager;
