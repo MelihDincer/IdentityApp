@@ -1,0 +1,75 @@
+@model string
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Giriş Başarılı - IdentityApp</title>
+
+    <link rel="stylesheet"
+          href="~/css/auth.css"
+          asp-append-version="true" />
+</head>
+
+<body class="auth-page">
+    <main class="auth-shell auth-success-shell">
+
+        <div class="auth-brand">IdentityApp</div>
+
+        <section class="auth-success-card"
+                 aria-labelledby="successTitle">
+
+            <div class="auth-success-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="m6 12 4 4 8-8" />
+                </svg>
+            </div>
+
+            <span class="auth-success-label">İŞLEM TAMAMLANDI</span>
+
+            <h1 id="successTitle">Giriş yapıldı</h1>
+
+            <p role="status">
+                Oturumunuz açıldı.<br />
+                Yönlendiriliyorsunuz…
+            </p>
+
+            <div class="auth-success-progress" aria-hidden="true">
+                <span></span>
+            </div>
+
+            <a href="@Model"
+               id="continueLink"
+               class="auth-submit">
+                Şimdi devam et
+            </a>
+
+            <noscript>
+                <p>Devam etmek için yukarıdaki butona tıklayın.</p>
+            </noscript>
+        </section>
+
+        <footer class="auth-footer">
+            © @DateTime.Now.Year IdentityApp
+        </footer>
+    </main>
+
+    <script>
+        window.setTimeout(() => {
+            const link = document.getElementById("continueLink");
+
+            window.location.replace(link.href);
+        }, 1100);
+    </script>
+</body>
+</html>

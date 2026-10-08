@@ -1,3 +1,5 @@
+@model IdentityApp.ViewModels.RegisterViewModel
+
 @{
     Layout = null;
     ViewData["Title"] = "Hesap Oluştur";
@@ -62,12 +64,12 @@
                 <form asp-controller="Account"
                       asp-action="Register"
                       method="post"
+                      id="registerForm"
                       class="auth-form">
 
-                    @Html.ValidationSummary(
-                        true,
-                        "",
-                        new { @class = "auth-validation", role = "alert" })
+                    <div asp-validation-summary="ModelOnly"
+                         class="auth-validation"
+                         role="alert"></div>
 
                     <div class="auth-field">
                         <label for="FullName" class="auth-label">
@@ -178,5 +180,33 @@
         </footer>
 
     </main>
+
+    <script>
+        (() => {
+            const form = document.getElementById("registerForm");
+            const button = form.querySelector('button[type="submit"]');
+            let submitting = false;
+
+            // Normal form POST'u devam eder; yalnızca çift tıklamayı engelleriz.
+            form.addEventListener("submit", event => {
+                if (submitting) {
+                    event.preventDefault();
+                    return;
+                }
+
+                submitting = true;
+                button.disabled = true;
+                button.textContent = "Hesabınız oluşturuluyor…";
+                form.setAttribute("aria-busy", "true");
+            });
+
+            window.addEventListener("pageshow", () => {
+                submitting = false;
+                button.disabled = false;
+                button.textContent = "Hesap oluştur";
+                form.removeAttribute("aria-busy");
+            });
+        })();
+    </script>
 </body>
 </html>

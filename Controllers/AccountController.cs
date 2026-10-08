@@ -39,36 +39,30 @@ public class AccountController : Controller
 
     [HttpGet]
     [AllowAnonymous]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public IActionResult Login(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
-
         return View(new LoginViewModel());
     }
 
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(
-        LoginViewModel model,
-        string? returnUrl = null)
+    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
-
+        ViewData["PasswordStep"] = true;
         if (!ModelState.IsValid)
         {
             return View(model);
         }
-
-        const string loginError =
-            "Giriş yapılamadı. E-posta ve parolanızı kontrol edin. " +
-            "E-posta doğrulamanızı tamamladığınızdan emin olun.";
-
+        const string invalidCredentials = "E-posta adresi veya parola hatalı.";
         var user = await _userManager.FindByEmailAsync(model.Email.Trim());
 
         if (user == null)
         {
-            ModelState.AddModelError(string.Empty, loginError);
+            ModelState.AddModelError(string.Empty, invalidCredentials);
             return View(model);
         }
 
@@ -80,14 +74,68 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            if (!string.IsNullOrWhiteSpace(returnUrl) &&
-                Url.IsLocalUrl(returnUrl))
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return LocalRedirect(returnUrl);
             }
 
             return RedirectToAction("Index", "Home");
         }
+
+        if (result.IsNotAllowed && !user.EmailConfirmed)
+        {
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                result = Microsoft.AspNetCore.Identity.SignInResult.LockedOut;
+            }
+            else
+            {
+                var passwordCorrect = await _userManager.CheckPasswordAsync(
+                    user,
+                    model.Password);
+
+                if (passwordCorrect)
+                {
+                    ViewData["ShowEmailConfirmation"] = true;
+
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Giriş yapabilmek için e-posta adresinizi doğrulamalısınız.");
+
+                    return View(model);
+                }
+
+                // Bu dalda SignInManager parola kontrolünü atladığından
+                // yanlış denemeyi burada sayıyoruz.
+                if (await _userManager.GetLockoutEnabledAsync(user))
+                {
+                    var failureResult =
+                        await _userManager.AccessFailedAsync(user);
+
+                    if (!failureResult.Succeeded)
+                    {
+                        ModelState.AddModelError(
+                            string.Empty,
+                            "Giriş işlemi tamamlanamadı. Lütfen tekrar deneyin.");
+
+                        return View(model);
+                    }
+
+                    if (await _userManager.IsLockedOutAsync(user))
+                    {
+                        result =
+                            Microsoft.AspNetCore.Identity.SignInResult.LockedOut;
+                    }
+                }
+
+                if (!result.IsLockedOut)
+                {
+                    ModelState.AddModelError(string.Empty, invalidCredentials);
+                    return View(model);
+                }
+            }
+        }
+
 
         if (result.IsLockedOut)
         {
@@ -121,9 +169,30 @@ public class AccountController : Controller
 
             return View(model);
         }
+        if (result.IsNotAllowed)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Hesabınızın giriş koşulları henüz sağlanmamış. " +
+                "Lütfen sistem yöneticisiyle iletişime geçin.");
 
-        ModelState.AddModelError(string.Empty, loginError);
+            return View(model);
+        }
+        ModelState.AddModelError(string.Empty, invalidCredentials);
         return View(model);
+    }
+
+    [HttpGet]
+    [Authorize]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public IActionResult LoginSuccess(string? returnUrl = null)
+    {
+        var targetUrl =
+            !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+                ? returnUrl
+                : Url.Action("Index", "Home")!;
+    
+        return View("LoginSuccess", model: targetUrl);
     }
 
     [HttpGet]
@@ -157,7 +226,7 @@ public class AccountController : Controller
                 await _dbContext.Database.BeginTransactionAsync(
                     IsolationLevel.Serializable);
 
-            // Rolü formdan almıyoruz; dış kayıtların rolü User.
+            // Dışarıdan kayıt olan kullanıcıya yalnızca User rolü atanır.
             var role = await _roleManager.FindByNameAsync("User");
 
             if (role == null ||
@@ -204,6 +273,7 @@ public class AccountController : Controller
                     "Kayıtta varsayılan rol atanamadı. Hatalar: {Codes}",
                     string.Join(", ", roleResult.Errors.Select(e => e.Code)));
 
+                // Commit yapılmadığından kullanıcı kaydı da geri alınır.
                 return IdentityResult.Failed(new IdentityError
                 {
                     Code = "RegistrationUnavailable",
@@ -220,9 +290,8 @@ public class AccountController : Controller
 
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-            {
-                var message = error.Code switch
+            var errors = result.Errors
+                .Select(error => error.Code switch
                 {
                     "DuplicateEmail" or "DuplicateUserName" =>
                         "Bu bilgilerle yeni hesap oluşturulamıyor. " +
@@ -235,39 +304,71 @@ public class AccountController : Controller
                         "E-posta adresi kullanıcı adı olarak kullanılamıyor.",
 
                     "PasswordTooShort" =>
-                        "Parolanız en az 6 karakter olmalıdır.",
+                        $"Parolanız en az " +
+                        $"{_userManager.Options.Password.RequiredLength} " +
+                        "karakter olmalıdır.",
+
+                    "PasswordRequiresDigit" =>
+                        "Parolanız en az bir rakam içermelidir.",
+
+                    "PasswordRequiresLower" =>
+                        "Parolanız en az bir küçük harf içermelidir.",
+
+                    "PasswordRequiresUpper" =>
+                        "Parolanız en az bir büyük harf içermelidir.",
+
+                    "PasswordRequiresNonAlphanumeric" =>
+                        "Parolanız en az bir özel karakter içermelidir.",
 
                     "RegistrationUnavailable" => error.Description,
 
                     _ => "Kayıt tamamlanamadı. Bilgilerinizi kontrol edin."
-                };
+                })
+                .Distinct()
+                .ToArray();
 
-                ModelState.AddModelError(string.Empty, message);
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
             }
 
             return View(model);
         }
 
-        var sent = await _accountEmailService.TrySendConfirmationAsync(createdUser!);
+        // Mail, veritabanı işlemi tamamlandıktan sonra gönderilir.
+        var sent = await _accountEmailService
+            .TrySendConfirmationAsync(createdUser!);
 
-        TempData["InfoMessage"] = sent
-    ? "Hesabınız oluşturuldu. Giriş yapabilmek için önce " +
-      "e-posta adresinizi doğrulamanız gerekiyor. " +
-      "Doğrulama bağlantısı e-posta adresinize gönderildi."
-    : "Hesabınız oluşturuldu ancak doğrulama e-postası gönderilemedi. " +
-      "Giriş yapabilmek için e-posta doğrulaması gereklidir. " +
-      "Aşağıdaki formdan yeniden gönderim isteyebilirsiniz.";
+        // Önceki işlemlerden kalan karşıt mesajı temizle.
+        TempData.Remove("SuccessMessage");
+        TempData.Remove("WarningMessage");
 
-        return RedirectToAction(nameof(RegisterConfirmation));
+        if (sent)
+        {
+            TempData["SuccessMessage"] =
+                "Hesabınız oluşturuldu. E-posta adresinize bir doğrulama " +
+                "bağlantısı gönderdik. Giriş yapmadan önce e-posta adresinizi " +
+                "doğrulayın. Gelen kutunuzu ve spam klasörünüzü kontrol edin.";
+        }
+        else
+        {
+            TempData["WarningMessage"] =
+                "Hesabınız oluşturuldu ancak doğrulama e-postası gönderilemedi. " +
+                "Aşağıdaki bağlantıdan yeniden doğrulama e-postası talep edin.";
+        }
+
+        TempData["ShowResendConfirmation"] = true;
+
+        // POST tamamlandıktan sonra tarayıcı Login sayfasına GET isteği yapar.
+        return RedirectToAction("Login", "Account");
     }
+
 
     [HttpGet]
     [AllowAnonymous]
     public IActionResult RegisterConfirmation()
     {
-        return View(
-        "RegisterConfirmation",
-        new ResendConfirmationViewModel());
+        return View(new ResendConfirmationViewModel());
     }
 
     [HttpPost]

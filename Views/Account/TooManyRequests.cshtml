@@ -1,0 +1,48 @@
+@model int
+@{
+    Layout = null;
+    var minutes = Math.Max(1, (int)Math.Ceiling(Model / 60.0));
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>İşlem Sınırı - IdentityApp</title>
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <div class="auth-brand">IdentityApp</div>
+        <div class="auth-panel">
+            <aside class="auth-aside">
+                <div>
+                    <span class="auth-eyebrow">Hesap işlemleri</span>
+                    <h2>Kısa bir<br />ara verelim.</h2>
+                    <p>Hesap işlemlerinize biraz sonra devam edebilirsiniz.</p>
+                </div>
+                <div class="auth-aside-note">IdentityApp</div>
+            </aside>
+            <section class="auth-content" aria-labelledby="limitTitle">
+                <header class="auth-heading">
+                    <h1 id="limitTitle">İşlem sınırına ulaşıldı</h1>
+                    <p>Kısa sürede çok fazla kayıt veya e-posta gönderim denemesi yapıldı.</p>
+                </header>
+                <div class="auth-feedback auth-feedback-warning" role="alert">
+                    <strong>Lütfen biraz bekleyin</strong>
+                    <p>Yaklaşık @minutes dakika sonra tekrar deneyebilirsiniz.</p>
+                </div>
+                <a asp-controller="Account" asp-action="Login" class="auth-submit">
+                    Giriş sayfasına dön
+                </a>
+                <p class="auth-switch">
+                    <a asp-controller="Account" asp-action="Register">Kayıt sayfası</a>
+                    ·
+                    <a asp-controller="Account" asp-action="RegisterConfirmation">E-posta doğrulama</a>
+                </p>
+            </section>
+        </div>
+        <footer class="auth-footer">© @DateTime.Now.Year IdentityApp</footer>
+    </main>
+</body>
+</html>

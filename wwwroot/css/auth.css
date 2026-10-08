@@ -406,3 +406,243 @@ a.auth-submit {
   color: #ffffff;
   text-decoration: none;
 }
+
+/* İKİ ADIMLI GİRİŞ */
+
+.auth-page [hidden] {
+  display: none !important;
+}
+
+.auth-step-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.auth-step-indicator > span:not(.auth-step-line) {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #f8fafc;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.auth-step-indicator > span.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+.auth-step-line {
+  width: 34px;
+  height: 1px;
+  margin-inline: 8px;
+  background: #e2e8f0;
+}
+
+.auth-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.auth-text-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-text-button:hover {
+  color: #111827;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-input[readonly] {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.auth-password-section {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-confirm-link {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
+.auth-submit:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.auth-button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: auth-spin 700ms linear infinite;
+}
+
+@keyframes auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* BAŞARILI GİRİŞ */
+
+.auth-success-shell {
+  max-width: 500px;
+}
+
+.auth-success-card {
+  padding: 44px 36px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 16px 48px rgb(15 23 42 / 5%);
+}
+
+.auth-success-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 24px;
+  border: 1px solid #d1fae5;
+  border-radius: 22px;
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.auth-success-icon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.auth-success-label {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.auth-success-card h1 {
+  margin: 10px 0 12px;
+  color: #111827;
+  font-size: 28px;
+  line-height: 1.3;
+  letter-spacing: -0.8px;
+}
+
+.auth-success-card p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.auth-success-progress {
+  height: 4px;
+  margin: 28px 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f1f5f9;
+}
+
+.auth-success-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: #059669;
+  transform-origin: left;
+  animation: auth-progress 1100ms linear forwards;
+}
+
+.auth-page .auth-success-card a.auth-submit {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth-success-card noscript p {
+  margin-top: 14px;
+  font-size: 12px;
+}
+
+@keyframes auth-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-button-spinner,
+  .auth-success-progress span {
+    animation: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-success-card {
+    padding: 32px 24px;
+  }
+}
+
+.auth-feedback {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.auth-feedback strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.auth-feedback p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.auth-feedback-success {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.auth-feedback-warning {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.auth-resend-wrapper {
+  margin-bottom: 24px;
+}

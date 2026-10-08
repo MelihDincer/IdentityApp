@@ -2,6 +2,10 @@ using System.Threading.RateLimiting;
 using IdentityApp.Models;
 using IdentityApp.Services.Email;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,12 +79,33 @@ builder.Services.AddRateLimiter(options =>
 
     options.OnRejected = async (context, cancellationToken) =>
     {
-        context.HttpContext.Response.ContentType =
-            "text/plain; charset=utf-8";
+        var retrySeconds = context.Lease.TryGetMetadata(
+            MetadataName.RetryAfter, out var retryAfter)
+                ? Math.Max(1, (int)Math.Ceiling(retryAfter.TotalSeconds))
+                : 900;
 
-        await context.HttpContext.Response.WriteAsync(
-            "Çok fazla işlem yaptınız. Lütfen daha sonra tekrar deneyin.",
-            cancellationToken);
+        var httpContext = context.HttpContext;
+        httpContext.Response.Headers["Retry-After"] = retrySeconds.ToString(
+            System.Globalization.CultureInfo.InvariantCulture);
+        httpContext.Response.Headers["Cache-Control"] = "no-store";
+
+        // Sınır aşımında düz yazı yerine aynı tasarımdaki 429 sayfasını göster.
+        var result = new ViewResult
+        {
+            ViewName = "~/Views/Account/TooManyRequests.cshtml",
+            StatusCode = StatusCodes.Status429TooManyRequests,
+            ViewData = new ViewDataDictionary<int>(
+                new EmptyModelMetadataProvider(),
+                new ModelStateDictionary())
+            {
+                Model = retrySeconds
+            }
+        };
+
+        await result.ExecuteResultAsync(new ActionContext(
+            httpContext,
+            httpContext.GetRouteData(),
+            new ActionDescriptor()));
     };
 });
 

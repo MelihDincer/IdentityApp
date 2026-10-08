@@ -1,6 +1,14 @@
+@model IdentityApp.ViewModels.LoginViewModel
+
 @{
     Layout = null;
-    ViewData["Title"] = "Giriş Yap";
+
+    var passwordStep = ViewData["PasswordStep"] is true;
+    var successMessage = TempData["SuccessMessage"] as string;
+    var warningMessage = TempData["WarningMessage"] as string;
+    var showEmailConfirmation =
+        TempData["ShowResendConfirmation"] is true ||
+        ViewData["ShowEmailConfirmation"] is true;
 }
 
 <!DOCTYPE html>
@@ -9,9 +17,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>@ViewData["Title"] - IdentityApp</title>
+    <title>Giriş Yap - IdentityApp</title>
 
-    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/auth.css"
+          asp-append-version="true" />
 </head>
 
 <body class="auth-page">
@@ -35,7 +45,7 @@
 
         <div class="auth-panel">
 
-            <aside class="auth-aside" aria-label="Hoş geldiniz">
+            <aside class="auth-aside">
                 <div>
                     <span class="auth-eyebrow">Hesap erişimi</span>
 
@@ -53,97 +63,243 @@
             </aside>
 
             <section class="auth-content" aria-labelledby="loginTitle">
+
+                <div class="auth-step-indicator"
+                     id="stepIndicator"
+                     aria-hidden="true"
+                     hidden>
+                    <span id="emailStepMark" class="is-active">1</span>
+                    <span class="auth-step-line"></span>
+                    <span id="passwordStepMark">2</span>
+                </div>
+
                 <header class="auth-heading">
                     <h1 id="loginTitle">Giriş yap</h1>
-                    <p>Devam etmek için hesap bilgilerinizi girin.</p>
+                    <p id="loginDescription" aria-live="polite">
+                        Devam etmek için hesap bilgilerinizi girin.
+                    </p>
                 </header>
+
+                @if (!string.IsNullOrWhiteSpace(successMessage))
+                {
+                    <div class="auth-feedback auth-feedback-success" role="status">
+                        <strong>Hesabınız oluşturuldu</strong>
+                        <p>@successMessage</p>
+                    </div>
+                }
+                else if (!string.IsNullOrWhiteSpace(warningMessage))
+                {
+                    <div class="auth-feedback auth-feedback-warning" role="alert">
+                        <strong>E-posta doğrulaması gerekiyor</strong>
+                        <p>@warningMessage</p>
+                    </div>
+                }
 
                 <form asp-controller="Account"
                       asp-action="Login"
                       method="post"
-                      class="auth-form">
-
-                    @Html.ValidationSummary(
-                        true,
-                        "",
-                        new { @class = "auth-validation", role = "alert" })
+                      id="loginForm"
+                      class="auth-form"
+                      data-password-step="@(passwordStep ? "true" : "false")">
 
                     <input type="hidden"
                            name="ReturnUrl"
                            value="@ViewData["ReturnUrl"]" />
 
-                    <div class="auth-field">
-                        <label for="Email" class="auth-label">
-                            E-posta adresi
-                        </label>
-
-                        @Html.TextBox("Email", null, new
-                        {
-                            @class = "auth-input",
-                            type = "email",
-                            placeholder = "ornek@firma.com",
-                            autocomplete = "username",
-                            required = "required",
-                            aria_describedby = "emailError"
-                        })
-
-                        @Html.ValidationMessage("Email", null, new
-                        {
-                            @class = "auth-error",
-                            id = "emailError"
-                        })
+                    <div asp-validation-summary="ModelOnly"
+                         class="auth-validation"
+                         role="alert">
                     </div>
 
-                    <div class="auth-field">
-                        <label for="Password" class="auth-label">
-                            Parola
-                        </label>
+                    @if (showEmailConfirmation)
+                    {
+                        <a asp-controller="Account"
+                           asp-action="RegisterConfirmation"
+                           class="auth-confirm-link">
+                            Doğrulama e-postasını yeniden gönder
+                        </a>
+                    }
 
-                        <input id="Password"
-                               name="Password"
-                               type="password"
+                    <div class="auth-field">
+                        <div class="auth-label-row">
+                            <label asp-for="Email" class="auth-label">
+                                E-posta adresi
+                            </label>
+
+                            <button type="button"
+                                    id="changeEmailButton"
+                                    class="auth-text-button"
+                                    hidden>
+                                Değiştir
+                            </button>
+                        </div>
+
+                        <input asp-for="Email"
+                               type="email"
                                class="auth-input"
-                               placeholder="Parolanızı girin"
-                               autocomplete="current-password"
-                               aria-describedby="passwordError"
+                               placeholder="ornek@firma.com"
+                               autocomplete="username"
+                               aria-describedby="emailError"
                                required />
 
-                        @Html.ValidationMessage("Password", null, new
-                        {
-                            @class = "auth-error",
-                            id = "passwordError"
-                        })
+                        <span asp-validation-for="Email"
+                              id="emailError"
+                              class="auth-error">
+                        </span>
                     </div>
 
-                    <label for="RememberMe" class="auth-checkbox">
-                        @Html.CheckBox("RememberMe")
-                        <span>Beni hatırla</span>
-                    </label>
+                    <div id="passwordSection" class="auth-password-section">
+                        <div class="auth-field">
+                            <label for="Password" class="auth-label">
+                                Parola
+                            </label>
 
-                    <button type="submit" class="auth-submit">
-                        Giriş yap
+                            <input id="Password"
+                                   name="Password"
+                                   type="password"
+                                   class="auth-input"
+                                   placeholder="Parolanızı girin"
+                                   autocomplete="current-password"
+                                   aria-describedby="passwordError"
+                                   required />
+
+                            <span asp-validation-for="Password"
+                                  id="passwordError"
+                                  class="auth-error">
+                            </span>
+                        </div>
+
+                        <label class="auth-checkbox" for="RememberMe">
+                            <input asp-for="RememberMe" />
+                            <span>Beni hatırla</span>
+                        </label>
+                    </div>
+
+                    <button type="button"
+                            id="nextButton"
+                            class="auth-submit"
+                            hidden>
+                        Devam et
+                    </button>
+
+                    <button type="submit"
+                            id="loginButton"
+                            class="auth-submit">
+                        <span class="auth-button-spinner"
+                              aria-hidden="true"
+                              hidden></span>
+                        <span id="loginButtonText">Giriş yap</span>
                     </button>
                 </form>
-                <p class="auth-switch">
-    Doğrulama e-postası ulaşmadı mı?
-    <a asp-controller="Account" asp-action="RegisterConfirmation">
-        Yeniden gönder
-    </a>
-</p>
+
                 <p class="auth-switch">
                     Henüz hesabınız yok mu?
                     <a asp-controller="Account" asp-action="Register">
                         Hesap oluştur
                     </a>
                 </p>
-            </section>
 
+            </section>
         </div>
 
         <footer class="auth-footer">
             © @DateTime.Now.Year IdentityApp
         </footer>
-
     </main>
+
+    <script>
+        (() => {
+            const form = document.getElementById("loginForm");
+            const email = document.getElementById("Email");
+            const password = document.getElementById("Password");
+            const passwordSection = document.getElementById("passwordSection");
+            const nextButton = document.getElementById("nextButton");
+            const loginButton = document.getElementById("loginButton");
+            const loginButtonText = document.getElementById("loginButtonText");
+            const spinner = loginButton.querySelector(".auth-button-spinner");
+            const changeEmailButton = document.getElementById("changeEmailButton");
+            const description = document.getElementById("loginDescription");
+            const stepIndicator = document.getElementById("stepIndicator");
+            const passwordStepMark = document.getElementById("passwordStepMark");
+
+            let isPasswordStep = false;
+            let isSubmitting = false;
+
+            function setStep(showPassword, focusField = true) {
+                isPasswordStep = showPassword;
+
+                passwordSection.hidden = !showPassword;
+                password.disabled = !showPassword;
+                email.readOnly = showPassword;
+
+                nextButton.hidden = showPassword;
+                loginButton.hidden = !showPassword;
+                changeEmailButton.hidden = !showPassword;
+
+                passwordStepMark.classList.toggle("is-active", showPassword);
+
+                description.textContent = showPassword
+                    ? "Giriş yapmak için parolanızı girin."
+                    : "Devam etmek için e-posta adresinizi girin.";
+
+                if (focusField) {
+                    (showPassword ? password : email).focus();
+                }
+            }
+
+            function continueToPassword() {
+                email.value = email.value.trim();
+
+                if (!email.reportValidity()) {
+                    return;
+                }
+
+                setStep(true);
+            }
+
+            nextButton.addEventListener("click", continueToPassword);
+
+            changeEmailButton.addEventListener("click", () => {
+                password.value = "";
+                setStep(false);
+            });
+
+            form.addEventListener("submit", event => {
+                if (!isPasswordStep) {
+                    event.preventDefault();
+                    continueToPassword();
+                    return;
+                }
+
+                if (isSubmitting) {
+                    event.preventDefault();
+                    return;
+                }
+
+                isSubmitting = true;
+                loginButton.disabled = true;
+                changeEmailButton.disabled = true;
+                spinner.hidden = false;
+                loginButtonText.textContent = "Kontrol ediliyor…";
+                form.setAttribute("aria-busy", "true");
+            });
+
+            // Tarayıcının geri tuşuyla dönüldüğünde butonu kullanılabilir yap.
+            window.addEventListener("pageshow", () => {
+                isSubmitting = false;
+                loginButton.disabled = false;
+                changeEmailButton.disabled = false;
+                spinner.hidden = true;
+                loginButtonText.textContent = "Giriş yap";
+                form.removeAttribute("aria-busy");
+            });
+
+            stepIndicator.hidden = false;
+
+            setStep(
+                form.dataset.passwordStep === "true",
+                false);
+        })();
+    </script>
 </body>
 </html>
