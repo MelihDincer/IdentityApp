@@ -20,14 +20,17 @@ public class AccountController : Controller
     private readonly IdentityContext _dbContext;
     private readonly AccountEmailService _accountEmailService;
     private readonly ILogger<AccountController> _logger;
-
+    private readonly IEmailSender _email;
+    private readonly IConfiguration _configuration;
     public AccountController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         RoleManager<AppRole> roleManager,
         IdentityContext dbContext,
         AccountEmailService accountEmailService,
-        ILogger<AccountController> logger)
+        ILogger<AccountController> logger,
+        IEmailSender email,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -35,6 +38,8 @@ public class AccountController : Controller
         _dbContext = dbContext;
         _accountEmailService = accountEmailService;
         _logger = logger;
+        _email = email;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -440,7 +445,7 @@ public class AccountController : Controller
     {
         await _signInManager.SignOutAsync();
 
-        return RedirectToAction(nameof(Login));
+        return RedirectToAction("Login", "Account");
     }
 
     [HttpGet]
@@ -456,4 +461,233 @@ public class AccountController : Controller
             Content = "Bu sayfaya erişim yetkiniz bulunmuyor."
         };
     }
+
+    [HttpGet]
+[AllowAnonymous]
+public IActionResult ForgotPassword()
+{
+    return View(new ForgotPasswordViewModel());
+}
+
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+[EnableRateLimiting("account-email")]
+public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        return View(model);
+    }
+
+    var user = await _userManager.FindByEmailAsync(model.Email.Trim());
+
+    // Yalnızca e-postası doğrulanmış, parolayla giriş yapabilen hesaplara gönder.
+    if (user != null &&
+        user.EmailConfirmed &&
+        await _userManager.HasPasswordAsync(user))
+    {
+        try
+        {
+            var baseUrl = _configuration["App:BaseUrl"];
+
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri) ||
+                uri.Scheme != Uri.UriSchemeHttps ||
+                !string.IsNullOrEmpty(uri.Query) ||
+                !string.IsNullOrEmpty(uri.Fragment))
+            {
+                throw new InvalidOperationException(
+                    "App:BaseUrl geçerli bir HTTPS adresi olmalıdır.");
+            }
+
+            var token =
+                await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var code = WebEncoders.Base64UrlEncode(
+                Encoding.UTF8.GetBytes(token));
+
+            // Bağlantı AccountController içindeki Reset metoduna gider.
+            var path = Url.Action(
+                nameof(Reset),
+                "Account",
+                new
+                {
+                    userId = user.Id,
+                    code
+                });
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new InvalidOperationException(
+                    "Parola sıfırlama bağlantısı oluşturulamadı.");
+            }
+
+            var link = baseUrl!.TrimEnd('/') + path;
+
+            await _email.SendEmailAsync(
+                user.Email!,
+                "IdentityApp | Parolanızı sıfırlayın",
+                PasswordResetEmailTemplate.Render(
+                    user.FullName ?? "Kullanıcımız",
+                    link));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Parola sıfırlama e-postası gönderilemedi. Kullanıcı: {UserId}",
+                user.Id);
+        }
+    }
+
+    // Hesabın varlığını açıklamıyoruz; kesin gönderim iddiasında bulunmuyoruz.
+    TempData["InfoMessage"] =
+        "Bu adresle kayıtlı, e-postası doğrulanmış ve parolayla giriş " +
+        "yapılabilen bir hesabınız varsa sıfırlama bağlantısı gönderimi " +
+        "talep edildi. Gelen kutunuzu ve spam klasörünüzü kontrol edin.";
+
+    return RedirectToAction(nameof(Login));
+}
+
+[HttpGet]
+[AllowAnonymous]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+public IActionResult Reset(string? userId, string? code)
+{
+    Response.Headers["Referrer-Policy"] = "no-referrer";
+
+    // Başarılı POST sonrasında yönlendirme ile bu ekran açılır.
+    if (TempData["PasswordResetSucceeded"] is true)
+    {
+        ViewData["ResetState"] = "Success";
+
+        return View(new ResetPasswordViewModel());
+    }
+
+    if (string.IsNullOrWhiteSpace(userId) ||
+        string.IsNullOrWhiteSpace(code))
+    {
+        ViewData["ResetState"] = "Invalid";
+
+        return View(new ResetPasswordViewModel());
+    }
+
+    try
+    {
+        WebEncoders.Base64UrlDecode(code);
+    }
+    catch (FormatException)
+    {
+        ViewData["ResetState"] = "Invalid";
+
+        return View(new ResetPasswordViewModel());
+    }
+
+    return View(new ResetPasswordViewModel
+    {
+        UserId = userId,
+        Code = code
+    });
+}
+
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+[EnableRateLimiting("account-email")]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+public async Task<IActionResult> Reset(ResetPasswordViewModel model)
+{
+    Response.Headers["Referrer-Policy"] = "no-referrer";
+
+    if (string.IsNullOrWhiteSpace(model.UserId) ||
+        string.IsNullOrWhiteSpace(model.Code))
+    {
+        ViewData["ResetState"] = "Invalid";
+
+        return View(model);
+    }
+
+    if (!ModelState.IsValid)
+    {
+        return View(model);
+    }
+
+    string token;
+
+    try
+    {
+        token = Encoding.UTF8.GetString(
+            WebEncoders.Base64UrlDecode(model.Code));
+    }
+    catch (FormatException)
+    {
+        ViewData["ResetState"] = "Invalid";
+
+        return View(model);
+    }
+
+    var user = await _userManager.FindByIdAsync(model.UserId);
+
+    if (user == null ||
+        !user.EmailConfirmed ||
+        !await _userManager.HasPasswordAsync(user))
+    {
+        ViewData["ResetState"] = "Invalid";
+
+        return View(model);
+    }
+
+    var result = await _userManager.ResetPasswordAsync(
+        user,
+        token,
+        model.Password);
+
+    if (result.Succeeded)
+    {
+        TempData["PasswordResetSucceeded"] = true;
+
+        // Sayfa yenilendiğinde parola formu tekrar gönderilmesin.
+        return RedirectToAction(nameof(Reset));
+    }
+
+    if (result.Errors.Any(error => error.Code == "InvalidToken"))
+    {
+        ViewData["ResetState"] = "Invalid";
+
+        return View(model);
+    }
+
+    var messages = result.Errors
+        .Select(error => error.Code switch
+        {
+            "PasswordTooShort" =>
+                $"Parola en az {_userManager.Options.Password.RequiredLength} karakter olmalıdır.",
+
+            "PasswordRequiresDigit" =>
+                "Parola en az bir rakam içermelidir.",
+
+            "PasswordRequiresLower" =>
+                "Parola en az bir küçük harf içermelidir.",
+
+            "PasswordRequiresUpper" =>
+                "Parola en az bir büyük harf içermelidir.",
+
+            "PasswordRequiresNonAlphanumeric" =>
+                "Parola en az bir özel karakter içermelidir.",
+
+            "PasswordRequiresUniqueChars" =>
+                $"Parola en az {_userManager.Options.Password.RequiredUniqueChars} farklı karakter içermelidir.",
+
+            _ =>
+                "Parola değiştirilemedi. Lütfen tekrar deneyin."
+        })
+        .Distinct();
+
+    foreach (var message in messages)
+    {
+        ModelState.AddModelError(string.Empty, message);
+    }
+
+    return View(model);
+}
 }
