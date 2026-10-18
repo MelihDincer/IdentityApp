@@ -43,149 +43,171 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
-    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public IActionResult Login(string? returnUrl = null)
+[AllowAnonymous]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+public IActionResult Login(string? returnUrl = null)
+{
+    ViewData["ReturnUrl"] = returnUrl;
+
+    // Bu değer yalnızca başarılı girişten sonra oluşturulur.
+    var targetUrl = TempData["LoginSuccessTarget"] as string;
+
+    if (User.Identity?.IsAuthenticated == true &&
+        !string.IsNullOrWhiteSpace(targetUrl) &&
+        Url.IsLocalUrl(targetUrl))
     {
-        ViewData["ReturnUrl"] = returnUrl;
-        return View(new LoginViewModel());
+        ViewData["LoginSuccessTarget"] = targetUrl;
     }
 
-    [HttpPost]
-    [AllowAnonymous]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+    return View(new LoginViewModel());
+}
+
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+public async Task<IActionResult> Login(
+    LoginViewModel model,
+    string? returnUrl = null)
+{
+    ViewData["ReturnUrl"] = returnUrl;
+
+    if (!ModelState.IsValid)
     {
-        ViewData["ReturnUrl"] = returnUrl;
-        ViewData["PasswordStep"] = true;
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-        const string invalidCredentials = "E-posta adresi veya parola hatalı.";
-        var user = await _userManager.FindByEmailAsync(model.Email.Trim());
+        return View(model);
+    }
 
-        if (user == null)
-        {
-            ModelState.AddModelError(string.Empty, invalidCredentials);
-            return View(model);
-        }
+    const string invalidCredentials =
+        "E-posta adresi veya parola hatalı.";
 
-        var result = await _signInManager.PasswordSignInAsync(
-            user,
-            model.Password,
-            model.RememberMe,
-            lockoutOnFailure: true);
+    var user = await _userManager.FindByEmailAsync(model.Email.Trim());
 
-        if (result.Succeeded)
-        {
-            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return LocalRedirect(returnUrl);
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        if (result.IsNotAllowed && !user.EmailConfirmed)
-        {
-            if (await _userManager.IsLockedOutAsync(user))
-            {
-                result = Microsoft.AspNetCore.Identity.SignInResult.LockedOut;
-            }
-            else
-            {
-                var passwordCorrect = await _userManager.CheckPasswordAsync(
-                    user,
-                    model.Password);
-
-                if (passwordCorrect)
-                {
-                    ViewData["ShowEmailConfirmation"] = true;
-
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Giriş yapabilmek için e-posta adresinizi doğrulamalısınız.");
-
-                    return View(model);
-                }
-
-                // Bu dalda SignInManager parola kontrolünü atladığından
-                // yanlış denemeyi burada sayıyoruz.
-                if (await _userManager.GetLockoutEnabledAsync(user))
-                {
-                    var failureResult =
-                        await _userManager.AccessFailedAsync(user);
-
-                    if (!failureResult.Succeeded)
-                    {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            "Giriş işlemi tamamlanamadı. Lütfen tekrar deneyin.");
-
-                        return View(model);
-                    }
-
-                    if (await _userManager.IsLockedOutAsync(user))
-                    {
-                        result =
-                            Microsoft.AspNetCore.Identity.SignInResult.LockedOut;
-                    }
-                }
-
-                if (!result.IsLockedOut)
-                {
-                    ModelState.AddModelError(string.Empty, invalidCredentials);
-                    return View(model);
-                }
-            }
-        }
-
-
-        if (result.IsLockedOut)
-        {
-            var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
-            var now = DateTimeOffset.UtcNow;
-
-            var message =
-                "Hesabınıza şu anda giriş yapılamıyor. " +
-                "Lütfen kısa bir süre sonra tekrar deneyin.";
-
-            if (lockoutEnd.HasValue && lockoutEnd.Value > now)
-            {
-                var minutes = Math.Ceiling(
-                    (lockoutEnd.Value - now).TotalMinutes);
-
-                message =
-                    $"Hesabınız geçici olarak kilitlendi. " +
-                    $"Yaklaşık {minutes:0} dakika sonra tekrar deneyin.";
-            }
-
-            ModelState.AddModelError(string.Empty, message);
-            return View(model);
-        }
-
-        if (result.RequiresTwoFactor)
-        {
-            // İki aşamalı doğrulama eklenince ilgili ekrana yönlendirilecek.
-            ModelState.AddModelError(
-                string.Empty,
-                "Girişi tamamlamak için iki aşamalı doğrulama gerekiyor.");
-
-            return View(model);
-        }
-        if (result.IsNotAllowed)
-        {
-            ModelState.AddModelError(
-                string.Empty,
-                "Hesabınızın giriş koşulları henüz sağlanmamış. " +
-                "Lütfen sistem yöneticisiyle iletişime geçin.");
-
-            return View(model);
-        }
+    if (user == null)
+    {
         ModelState.AddModelError(string.Empty, invalidCredentials);
         return View(model);
     }
+
+    var result = await _signInManager.PasswordSignInAsync(
+        user,
+        model.Password,
+        model.RememberMe,
+        lockoutOnFailure: true);
+
+    if (result.Succeeded)
+    {
+        var targetUrl =
+            !string.IsNullOrWhiteSpace(returnUrl) &&
+            Url.IsLocalUrl(returnUrl)
+                ? returnUrl
+                : Url.Action("Index", "Home")!;
+
+        // Başarı kartını sonraki GET isteğinde göster.
+        TempData["LoginSuccessTarget"] = targetUrl;
+
+        return RedirectToAction(nameof(Login));
+    }
+
+    if (result.IsNotAllowed && !user.EmailConfirmed)
+    {
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            result = Microsoft.AspNetCore.Identity.SignInResult.LockedOut;
+        }
+        else
+        {
+            var passwordCorrect = await _userManager.CheckPasswordAsync(
+                user,
+                model.Password);
+
+            if (passwordCorrect)
+            {
+                ViewData["ShowEmailConfirmation"] = true;
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Giriş yapabilmek için e-posta adresinizi doğrulamalısınız.");
+
+                return View(model);
+            }
+
+            // SignInManager bu durumda parola kontrolünü atladığı için
+            // yanlış parola denemesini burada kaydediyoruz.
+            if (await _userManager.GetLockoutEnabledAsync(user))
+            {
+                var failureResult =
+                    await _userManager.AccessFailedAsync(user);
+
+                if (!failureResult.Succeeded)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Giriş işlemi tamamlanamadı. Lütfen tekrar deneyin.");
+
+                    return View(model);
+                }
+
+                if (await _userManager.IsLockedOutAsync(user))
+                {
+                    result =
+                        Microsoft.AspNetCore.Identity.SignInResult.LockedOut;
+                }
+            }
+
+            if (!result.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, invalidCredentials);
+                return View(model);
+            }
+        }
+    }
+
+    if (result.IsLockedOut)
+    {
+        var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
+        var now = DateTimeOffset.UtcNow;
+
+        var message =
+            "Hesabınıza şu anda giriş yapılamıyor. " +
+            "Lütfen kısa bir süre sonra tekrar deneyin.";
+
+        if (lockoutEnd.HasValue && lockoutEnd.Value > now)
+        {
+            var minutes = Math.Ceiling(
+                (lockoutEnd.Value - now).TotalMinutes);
+
+            message =
+                $"Hesabınız geçici olarak kilitlendi. " +
+                $"Yaklaşık {minutes:0} dakika sonra tekrar deneyin.";
+        }
+
+        ModelState.AddModelError(string.Empty, message);
+        return View(model);
+    }
+
+    if (result.RequiresTwoFactor)
+    {
+        ModelState.AddModelError(
+            string.Empty,
+            "Girişi tamamlamak için iki aşamalı doğrulama gerekiyor.");
+
+        return View(model);
+    }
+
+    if (result.IsNotAllowed)
+    {
+        ModelState.AddModelError(
+            string.Empty,
+            "Hesabınızın giriş koşulları henüz sağlanmamış. " +
+            "Lütfen sistem yöneticisiyle iletişime geçin.");
+
+        return View(model);
+    }
+
+    ModelState.AddModelError(string.Empty, invalidCredentials);
+
+    return View(model);
+}
 
     [HttpGet]
     [Authorize]
@@ -340,33 +362,31 @@ public class AccountController : Controller
             return View(model);
         }
 
-        // Mail, veritabanı işlemi tamamlandıktan sonra gönderilir.
-        var sent = await _accountEmailService
-            .TrySendConfirmationAsync(createdUser!);
+        var sent = await _accountEmailService.TrySendConfirmationAsync(createdUser!);
 
-        // Önceki işlemlerden kalan karşıt mesajı temizle.
-        TempData.Remove("SuccessMessage");
-        TempData.Remove("WarningMessage");
+// Önceden kalmış bildirimlerin birlikte görünmesini engelle.
+TempData.Remove("SuccessMessage");
+TempData.Remove("WarningMessage");
+TempData.Remove("InfoMessage");
 
-        if (sent)
-        {
-            TempData["SuccessMessage"] =
-                "Hesabınız oluşturuldu. E-posta adresinize bir doğrulama " +
-                "bağlantısı gönderdik. Giriş yapmadan önce e-posta adresinizi " +
-                "doğrulayın. Gelen kutunuzu ve spam klasörünüzü kontrol edin.";
-        }
-        else
-        {
-            TempData["WarningMessage"] =
-                "Hesabınız oluşturuldu ancak doğrulama e-postası gönderilemedi. " +
-                "Aşağıdaki bağlantıdan yeniden doğrulama e-postası talep edin.";
-        }
+if (sent)
+{
+    TempData["SuccessMessage"] =
+        "Hesabınız oluşturuldu. E-posta adresinize doğrulama bağlantısı " +
+        "gönderdik. Giriş yapabilmek için önce e-posta adresinizi doğrulayın. " +
+        "Gelen kutunuzu ve spam klasörünüzü kontrol edin.";
+}
+else
+{
+    TempData["WarningMessage"] =
+        "Hesabınız oluşturuldu ancak doğrulama e-postası gönderilemedi. " +
+        "Aşağıdaki bağlantıdan yeniden doğrulama e-postası isteyebilirsiniz.";
+}
 
-        TempData["ShowResendConfirmation"] = true;
+TempData["ShowResendConfirmation"] = true;
 
-        // POST tamamlandıktan sonra tarayıcı Login sayfasına GET isteği yapar.
-        return RedirectToAction("Login", "Account");
-    }
+return RedirectToAction(nameof(Login)); 
+}
 
 
     [HttpGet]

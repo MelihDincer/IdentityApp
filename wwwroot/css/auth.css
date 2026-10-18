@@ -646,3 +646,160 @@ a.auth-submit {
 .auth-resend-wrapper {
   margin-bottom: 24px;
 }
+
+/* Giriş butonundaki bekleme göstergesi */
+.login-submit-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: middle;
+  animation: login-spinner-turn 0.7s linear infinite;
+}
+
+.login-submit-spinner[hidden] {
+  display: none;
+}
+
+#loginButton:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+/* Başarılı giriş kartı */
+body.login-success-open {
+  overflow: hidden;
+}
+
+.login-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.login-success-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
+  padding: 38px 30px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.2);
+  text-align: center;
+  outline: none;
+  animation: login-card-enter 0.2s ease-out;
+}
+
+.login-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #43bd99;
+  box-shadow: 0 0 0 9px #edf9f5;
+}
+
+.login-success-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.login-success-card h2 {
+  margin: 0 0 10px;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.login-success-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.login-success-progress {
+  height: 4px;
+  margin: 26px 0 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf2f7;
+}
+
+.login-success-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: #43bd99;
+  transform-origin: left;
+  animation: login-progress-fill 1.2s linear both;
+}
+
+.login-success-link {
+  color: #64748b;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.login-success-link:hover {
+  color: #172033;
+}
+
+.login-success-link:focus-visible {
+  outline: 2px solid #43bd99;
+  outline-offset: 5px;
+}
+
+@keyframes login-spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes login-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes login-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-submit-spinner,
+  .login-success-card,
+  .login-success-progress span {
+    animation: none;
+  }
+}
